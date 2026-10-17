@@ -67,20 +67,21 @@ def _request_body(body, added):
 def _unanswered(row, kind):
     """What an earlier create request, sent and never answered, added to the inputs; None when there was none.
 
-    A row without that record cannot be repeated exactly, so it counts as never sent.
+    A row without that record cannot be repeated exactly. Its caller must stop
+    rather than treating an unanswered request as never sent.
     """
     if not row or row["status"] != "submitting" or row["kind"] != kind or not row.get("request"):
         return None
     try:
         added = json.loads(row["request"])
-    except ValueError:
+    except (ValueError, TypeError, RecursionError):
         return None
     return added if isinstance(added, dict) and isinstance(added.get("max_usd"), str) else None
 
 
 class JobRunner:
     def __init__(self, client, state, uploader, *, sleep=asyncio.sleep, clock=time.monotonic,
-                 poll_first=2.0, poll_max=15.0, max_wait=3600.0, create_attempts=3):
+                 poll_first=2.0, poll_max=15.0, max_wait=3600.0, create_attempts=3, operation_locks=None):
         self._client = client
         self._state = state
         self._uploader = uploader
@@ -90,7 +91,9 @@ class JobRunner:
         self._poll_max = poll_max
         self._max_wait = max_wait
         self._create_attempts = create_attempts
-        self._locks = {}  # fingerprint -> [lock, runs holding or waiting for it]
+        # A runtime shares this table across credential-bound runners: a key
+        # change during estimation must not reserve the same input twice.
+        self._locks = {} if operation_locks is None else operation_locks
 
     def fingerprint(self, spec):
         media = {}
@@ -131,19 +134,44 @@ class JobRunner:
 
     async def _attach(self, kind, fingerprint):
         row = await self._state_call(self._state.job, fingerprint)
-        if not row or row["kind"] != kind or not row["job_id"] or row["status"] not in ACTIVE | {"succeeded"}:
+        if not row:
+            return None
+        if row["kind"] != kind:
+            raise CuddlerError("recovery_required")
+        identity = self._client.recovery_identity()
+        if not row["job_id"]:
+            return None
+        if row["status"] not in ACTIVE | {"succeeded"} and row.get("credential_identity") == identity:
             return None
         try:
-            return await asyncio.to_thread(self._client.get, kind, row["job_id"])
+            job = await asyncio.to_thread(self._client.get, kind, row["job_id"])
         except CuddlerError as error:
-            if error.code not in ("not_found", "output_expired"):  # gone, or its result expired: make it again
+            if error.code == "not_found":
+                # A different organization also sees 404. It does not prove
+                # that the earlier task never existed or was not charged.
+                raise CuddlerError("recovery_required", request_id=error.request_id) from error
+            if error.code != "output_expired":
                 raise
-            await self._state_call(self._state.update_job, fingerprint, status="failed")
+            # An authenticated succeeded job with a null output proves access
+            # and expiry. Re-generating it is the existing paid product policy.
+            await self._state_call(self._state.update_job, fingerprint, status="failed",
+                                   credential_identity=identity)
             return None
+        # Reading a known task proves this key can access its organization.
+        # This permits ordinary key rotation without guessing an org ID.
+        await self._state_call(self._state.update_job, fingerprint, status=job["status"],
+                               credential_identity=identity)
+        return job
 
     async def _submit(self, spec, fingerprint, interrupted, progress):
         row = await self._state_call(self._state.job, fingerprint)
+        identity = self._client.recovery_identity()
+        if row and (row["kind"] != spec.kind or row.get("credential_identity") != identity):
+            raise CuddlerError("recovery_required")
         added = _unanswered(row, spec.kind)
+        if row and (row["status"] not in {"failed", "canceled", "submitting"}
+                    or row["status"] == "submitting" and added is None):
+            raise CuddlerError("recovery_required")
         if added is None:
             key = None
             added = await self._prepare(spec, progress)
@@ -158,7 +186,8 @@ class JobRunner:
             raise CuddlerError("interrupted_before_create")  # nothing that costs money was sent
         if key is None:
             key = "job-" + uuid.uuid4().hex
-            await self._state_call(self._state.begin_job, fingerprint, spec.kind, key, json.dumps(added))
+            await self._state_call(self._state.begin_job, fingerprint, spec.kind, key, json.dumps(added),
+                                   credential_identity=identity)
         try:
             job = await self._create(spec.kind, _request_body(spec.body, added), key)
         except CuddlerError as error:

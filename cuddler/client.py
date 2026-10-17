@@ -1,4 +1,5 @@
 """The Platform API calls the plugin makes. Every response is checked before use."""
+import hashlib
 import json
 import re
 
@@ -97,6 +98,19 @@ class PlatformClient:
         self._transport = transport
         self._key = key
         self.origin = origin.rstrip("/")
+
+    def recovery_identity(self):
+        """A local credential binding; never a claim about the key's organization.
+
+        Unknown submissions may only be replayed with the credential that sent them.
+        A replacement key can recover a known job by successfully reading it first.
+        Only this one-way digest is stored with recovery records, never the key.
+        """
+        if not self._key:
+            raise CuddlerError("key_missing")
+        value = json.dumps(["cuddler-recovery-v1", self.origin, self._key],
+                           separators=(",", ":")).encode("utf-8")
+        return hashlib.sha256(value).hexdigest()
 
     def _call(self, method, path, body=None, *, idempotency_key=None, auth=True, timeout=30.0):
         headers = {"Accept": "application/json"}

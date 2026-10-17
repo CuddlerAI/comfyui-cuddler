@@ -10,6 +10,8 @@ from ..cuddler.client import PlatformClient
 from ..cuddler.credentials import KeyStore
 from ..cuddler.errors import CuddlerError
 from ..cuddler.files import ensure_private_dir
+from ..cuddler.jobs import JobRunner
+from ..cuddler.uploads import Uploader
 from ..cuddler.i18n import language_from_settings
 from ..cuddler.state import StateDB
 from ..cuddler.transport import HttpTransport
@@ -41,6 +43,9 @@ class Runtime:
         self.state = StateDB(self.directory)
         self.catalog = CatalogStore(snapshot_path, self.directory, self._fetch_catalog)
         self._settings_path = settings_path
+        self._runners = {}
+        self._runner_lock = threading.Lock()
+        self._job_locks = {}  # fingerprint locks span credential changes, not just one client
 
     def _fetch_catalog(self):
         return PlatformClient(self.transport).catalog(timeout=5)
@@ -56,6 +61,15 @@ class Runtime:
 
     def language(self):
         return language_from_settings(self._settings_path)
+
+    def job_runner(self, client):
+        """Share per-operation locks across nodes using the same credential."""
+        identity = client.recovery_identity()
+        with self._runner_lock:
+            if identity not in self._runners:
+                self._runners[identity] = JobRunner(client, self.state, Uploader(client, self.state),
+                                                    operation_locks=self._job_locks)
+            return self._runners[identity]
 
     def refresh_in_background(self):
         """Tidy old records and refresh the catalog without delaying ComfyUI's start.

@@ -106,8 +106,8 @@ MESSAGES = {
     "job_failed": ("The job failed: {reason}", "任务失败：{reason}"),
     "job_canceled": ("The job was canceled.", "任务已取消。"),
     "output_expired": (
-        "The earlier result has expired. Running the node again makes a new one.",
-        "之前的结果已过期，再运行一次会重新生成。"),
+        "The earlier result has expired. Running the node again generates a new result and charges for it.",
+        "之前的结果已过期，再运行一次会重新生成并重新计费。"),
     # Two outcomes of stopping a run: the queued job was canceled (interrupted_canceled), or it could not be
     # canceled (started already, an image job, or the cancel call failed) and keeps running (interrupted).
     "interrupted": (
@@ -125,6 +125,12 @@ MESSAGES = {
         "Cuddler could not use its local job records ({reason}). Make sure ComfyUI can write to its user "
         "folder and that no other program is using it, then run the node again.",
         "Cuddler 无法读写本地任务记录（{reason}）。请确认 ComfyUI 对 user 文件夹有写入权限，且没有其他程序占用，然后重新运行。"),
+    "recovery_required": (
+        "Stopped to avoid charging twice: the earlier request cannot be safely recovered with this key or "
+        "these local records. Restore the original key and records, or contact Cuddler support to reconcile "
+        "the earlier request before generating again. Do not delete the records to retry.",
+        "为避免重复计费，已停止：当前 key 或本地记录无法安全恢复之前的请求。请恢复原 key 和记录，"
+        "或联系 Cuddler 支持核对之前的请求后再生成。不要删除记录来重试。"),
     "catalog_invalid": ("The model list could not be loaded.", "模型列表加载失败。"),
 }
 ALIASES = {"internal_error": "platform_unavailable", "upstream_error": "platform_unavailable",

@@ -2,6 +2,7 @@ import asyncio
 import json
 from pathlib import Path
 import tempfile
+import threading
 import unittest
 from unittest import mock
 
@@ -346,6 +347,153 @@ class JobRunnerTest(unittest.IsolatedAsyncioTestCase):
         await asyncio.gather(self.run_job(), self.run_job())
         self.assertEqual(len(self.transport.calls("POST", "/videos")), 1)
         self.assertEqual(self.runner._locks, {})  # a finished fingerprint keeps no lock
+
+    def runner_with_key(self, key, *, operation_locks=None):
+        client = PlatformClient(self.transport, key)
+        return JobRunner(client, self.state, Uploader(client, self.state, sleep=lambda s: None),
+                         sleep=self.clock.sleep, clock=self.clock, operation_locks=operation_locks)
+
+    async def test_an_unknown_create_cannot_be_replayed_under_a_different_key(self):
+        self.script_estimate()
+        self.transport.fail("POST", "/videos", CuddlerError("network_error"))
+        with self.assertRaises(CuddlerError):
+            await self.run_job()  # accepted remotely, but its ID never reached this process
+        original = self.transport.calls("POST", "/videos")[0]
+        self.transport.routes.clear()
+        before = len(self.transport.requests)
+        with self.assertRaises(CuddlerError) as caught:
+            await self.runner_with_key("cud_sk_live_" + "B" * 20).run(self.spec())
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(len(self.transport.requests), before)  # not even an estimate/upload
+        # Restoring the original credential safely retrieves the same accepted request.
+        self.transport.add("POST", "/videos", body=fakes.video_job("succeeded"))
+        await self.runner_with_key(fakes.LIVE_KEY).run(self.spec())
+        replay = self.transport.calls("POST", "/videos")[-1]
+        self.assertEqual((replay.headers["Idempotency-Key"], replay.body),
+                         (original.headers["Idempotency-Key"], original.body))
+
+    async def test_a_known_job_allows_key_rotation_after_a_successful_read(self):
+        self.script_estimate()
+        self.transport.add("POST", "/videos", body=fakes.video_job("succeeded"))
+        await self.run_job()
+        other = self.runner_with_key("cud_sk_live_" + "B" * 20)
+        self.transport.add("GET", JOB_URL, body=fakes.video_job("succeeded"))
+        job = await other.run(self.spec())
+        self.assertEqual(job["id"], fakes.VIDEO_ID)
+        self.assertEqual(len(self.transport.calls("POST", "/videos")), 1)
+        self.assertEqual(self.state.job(other.fingerprint(self.spec()))["credential_identity"],
+                         other._client.recovery_identity())
+
+    async def test_a_known_job_missing_under_a_new_key_never_turns_into_a_new_paid_job(self):
+        self.script_estimate()
+        self.transport.add("POST", "/videos", body=fakes.video_job("succeeded"))
+        await self.run_job()
+        row = self.state.job(self.runner.fingerprint(self.spec()))
+        self.transport.add("GET", JOB_URL, status=404, body=fakes.error("not_found", 404))
+        with self.assertRaises(CuddlerError) as caught:
+            await self.runner_with_key("cud_sk_live_" + "B" * 20).run(self.spec())
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(len(self.transport.calls("POST", "/videos")), 1)
+        self.assertEqual(self.state.job(self.runner.fingerprint(self.spec())), row)
+
+    async def test_an_unbound_legacy_request_without_an_id_stops_before_any_http(self):
+        fingerprint = self.runner.fingerprint(self.spec())
+        self.state.begin_job(fingerprint, "video", "legacy-request", json.dumps({"max_usd": "2.000000"}))
+        with self.assertRaises(CuddlerError) as caught:
+            await self.run_job()
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(self.transport.requests, [])
+        self.assertIsNone(self.state.job(fingerprint)["credential_identity"])
+
+    async def test_a_legacy_job_with_an_id_can_be_bound_only_after_reading_it(self):
+        fingerprint = self.runner.fingerprint(self.spec())
+        self.state.begin_job(fingerprint, "video", "legacy-request")
+        self.state.update_job(fingerprint, status="queued", job_id=fakes.VIDEO_ID)
+        self.transport.add("GET", JOB_URL, body=fakes.video_job("succeeded"))
+        self.assertEqual((await self.run_job())["id"], fakes.VIDEO_ID)
+        self.assertEqual(self.transport.calls("POST", "/videos"), [])
+        self.assertEqual(self.state.job(fingerprint)["credential_identity"], self.runner._client.recovery_identity())
+
+    async def test_a_missing_replay_body_is_not_treated_as_a_never_sent_request(self):
+        fingerprint = self.runner.fingerprint(self.spec())
+        self.state.begin_job(fingerprint, "video", "original-request", "not-json",
+                             credential_identity=self.runner._client.recovery_identity())
+        with self.assertRaises(CuddlerError) as caught:
+            await self.run_job()
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(self.transport.requests, [])
+
+    async def test_corruption_after_a_lost_create_response_cannot_reset_the_payment_guard(self):
+        self.script_estimate()
+        self.transport.fail("POST", "/videos", CuddlerError("network_error"))
+        with self.assertRaises(CuddlerError):
+            await self.run_job()
+        original = self.transport.calls("POST", "/videos")[0]
+        saved = self.state.path.read_bytes()
+        damaged = b"unreadable local job records"
+        self.state.path.write_bytes(damaged)
+        before = len(self.transport.requests)
+        with self.assertRaises(CuddlerError) as caught:
+            make_runner(self.tmp.name, self.transport, self.clock)
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(self.state.path.read_bytes(), damaged)
+        self.assertEqual(len(self.transport.requests), before)
+        # A restored intact record still recovers the original request, rather
+        # than acknowledging an empty database as a new user.
+        self.state.path.write_bytes(saved)
+        recovered, _ = make_runner(self.tmp.name, self.transport, self.clock)
+        self.transport.routes.clear()
+        self.transport.add("POST", "/videos", body=fakes.video_job("succeeded"))
+        await recovered.run(self.spec())
+        replay = self.transport.calls("POST", "/videos")[-1]
+        self.assertEqual((replay.headers["Idempotency-Key"], replay.body),
+                         (original.headers["Idempotency-Key"], original.body))
+
+    async def test_key_rotation_during_estimation_cannot_reserve_and_charge_the_same_input_twice(self):
+        self.script_estimate()
+        self.transport.add("POST", "/videos", body=fakes.video_job("succeeded"))
+        # The new key belongs to another organization, so it cannot read the
+        # job the first key has already paid for.
+        self.transport.add("GET", JOB_URL, status=404, body=fakes.error("not_found", 404))
+        entered, release = threading.Event(), threading.Event()
+        estimate = self.runner._client.estimate
+
+        def blocked_estimate(*args):
+            answer = estimate(*args)
+            entered.set()
+            if not release.wait(5):
+                raise AssertionError("test estimate was not released")
+            return answer
+
+        self.runner._client.estimate = blocked_estimate
+        other = self.runner_with_key("cud_sk_live_" + "B" * 20, operation_locks=self.runner._locks)
+        first = asyncio.create_task(self.run_job())
+        second = None
+        try:
+            self.assertTrue(await asyncio.to_thread(entered.wait, 2))
+            second = asyncio.create_task(other.run(self.spec()))
+            await asyncio.sleep(0.02)
+            self.assertEqual(len(self.transport.calls("POST", "/videos/estimate")), 1)
+        finally:
+            release.set()
+        results = await asyncio.gather(first, second, return_exceptions=True)
+        self.assertEqual(results[0]["id"], fakes.VIDEO_ID)
+        self.assertEqual(results[1].code, "recovery_required")
+        self.assertEqual(len(self.transport.calls("POST", "/videos")), 1)
+
+    async def test_a_lost_database_after_a_lost_create_response_blocks_before_any_new_http(self):
+        self.script_estimate()
+        self.transport.fail("POST", "/videos", CuddlerError("network_error"))
+        with self.assertRaises(CuddlerError):
+            await self.run_job()
+        self.assertTrue(self.state.marker.exists())
+        self.state.path.unlink()
+        before = len(self.transport.requests)
+        with self.assertRaises(CuddlerError) as caught:
+            make_runner(self.tmp.name, self.transport, self.clock)
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(len(self.transport.requests), before)
+        self.assertFalse(self.state.path.exists())
 
 
 class EventLoopTest(unittest.TestCase):

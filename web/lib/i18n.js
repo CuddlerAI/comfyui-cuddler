@@ -22,6 +22,7 @@ const STRINGS = {
     addFunds: "Add funds",
     envLocked: "Set by the environment variable; change it there.",
     priceNeedsKey: "Add an API key to see the price",
+    priceLabel: "Estimated price",
     price: "≈ {amount}",
     // {amount} is the most a run can be charged (hold_usd), not the estimate.
     overCap: "Up to {amount}, above the {cap} limit",
@@ -47,6 +48,7 @@ const STRINGS = {
     addFunds: "充值",
     envLocked: "key 由环境变量提供，请在环境变量里修改。",
     priceNeedsKey: "填写 API key 后显示价格",
+    priceLabel: "预计价格",
     price: "约 {amount}",
     overCap: "最多 {amount}，超过上限 {cap}",
     priceError: "暂时无法估价：{message}",

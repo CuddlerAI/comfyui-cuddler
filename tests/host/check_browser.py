@@ -54,6 +54,19 @@ def main():
         click(page, f"{PANEL} [data-cuddler=save]")
         page.wait_for_function(text_includes(f"{PANEL} [data-cuddler=status]", "BBBB"), timeout=30_000)
         page.wait_for_function(text_includes(f"{PANEL} [data-cuddler=balance]", "12.34"), timeout=30_000)
+        page.wait_for_function("() => window.LiteGraph?.registered_node_types?.CuddlerVideo", timeout=30_000)
+        page.evaluate("""() => {
+          const node = window.LiteGraph.createNode('CuddlerVideo');
+          window.app.graph.add(node);
+          window.__cuddlerVideoCheckNode = node;
+        }""")
+        page.wait_for_function("() => window.__cuddlerVideoCheckNode.widgets.some((widget) => "
+                               "typeof widget.value === 'string' && widget.value.includes('$0.66'))",
+                               timeout=30_000)
+        workflow = page.evaluate("() => window.__cuddlerVideoCheckNode.serialize()")
+        if KEY in json.dumps(workflow):
+            raise AssertionError("the API key reached a video workflow")
+        page.evaluate("() => window.app.graph.remove(window.__cuddlerVideoCheckNode)")
         settings = page.evaluate("() => fetch('/api/settings').then((response) => response.json())")
         click(page, f"{PANEL} [data-cuddler=remove]")
         page.wait_for_function(f"() => !({text_includes(f'{PANEL} [data-cuddler=status]', 'BBBB')})()",
@@ -64,7 +77,7 @@ def main():
     if leaked or own_errors:
         print(f"FAIL key in ComfyUI settings: {leaked}; page errors: {own_errors}")
         return 1
-    print("PASS the settings panel saved and removed a key; the key never reached ComfyUI's settings")
+    print("PASS settings and the video price label work; the key never reached settings or a workflow")
     return 0
 
 

@@ -3,5 +3,22 @@
     "Cuddler": "Cuddler",
     "Account": "账户",
     "Key": "API key"
+  },
+  "nodeDefs": {
+    "CuddlerVideo": {
+      "display_name": "Cuddler 视频",
+      "description": "文生视频或首帧图生视频，将 VIDEO 输出接到 Save Video。其他用法仍在开发。",
+      "inputs": {
+        "prompt": {
+          "name": "提示词"
+        },
+        "max_usd": {
+          "name": "单次花费上限（美元）"
+        },
+        "seed": {
+          "name": "种子"
+        }
+      }
+    }
   }
 }

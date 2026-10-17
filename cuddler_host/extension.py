@@ -21,7 +21,8 @@ class CuddlerExtension(ComfyExtension):
             log.warning("cuddler: start-up work failed (%s)", type(error).__name__)
 
     async def get_node_list(self):
-        return []
+        from .video import CuddlerVideo
+        return [CuddlerVideo]
 
 
 async def comfy_entrypoint():

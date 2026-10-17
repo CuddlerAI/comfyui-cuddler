@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "status": "not_started",
+  "candidate_commit": null,
+  "host_versions": [],
+  "approval": {
+    "reference": null,
+    "confirmed_at": null,
+    "models_and_modes": [],
+    "maximum_new_jobs": null,
+    "maximum_uploads": null,
+    "total_budget_usd": null,
+    "per_job_cap_usd": null,
+    "spent_before_usd": null,
+    "held_before_usd": null,
+    "remaining_confirmed_before_usd": null
+  },
+  "private_evidence": {
+    "key_reference_only": null,
+    "preflight_report": null,
+    "state_backup_reference": null
+  },
+  "cases": [
+    {"case": "text_baseline", "status": "not_run", "new_jobs_allowed": null, "operation_reference": null,
+     "job_id": null, "terminal_status": null, "estimate_usd": null, "hold_usd": null,
+     "captured_usd": null, "capture_count": null, "released_usd": null,
+     "output_sha256": null, "save_video_verified": false, "evidence_references": []},
+    {"case": "same_inputs_and_restart_recovery", "status": "not_run", "new_jobs_allowed": 0,
+     "original_job_id": null, "recovered_job_id": null, "extra_capture_count": null, "evidence_references": []},
+    {"case": "first_frame", "status": "not_run", "new_jobs_allowed": null, "uploads_allowed": null,
+     "job_id": null, "upload_id": null, "captured_usd": null, "capture_count": null, "evidence_references": []},
+    {"case": "lost_initial_response", "status": "not_run", "new_jobs_allowed": null,
+     "approved_fault_injection_reference": null, "original_job_id": null, "recovered_job_id": null,
+     "extra_capture_count": null, "evidence_references": []}
+  ],
+  "closeout": {
+    "spent_this_run_usd": null,
+    "held_after_usd": null,
+    "remaining_confirmed_after_usd": null,
+    "key_revoked_at": null,
+    "revoked_key_read_status": null,
+    "approved_unused_credit_return_reference": null,
+    "unverified_cases": [],
+    "decision": "pending"
+  }
+}

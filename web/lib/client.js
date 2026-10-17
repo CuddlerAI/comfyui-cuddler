@@ -9,7 +9,7 @@ async function readJson(response) {
   }
 }
 
-export function createClient(fetchApi) {
+export function createClient(fetchApi, { onKeyChanged = () => {} } = {}) {
   const call = async (path, init) => {
     const response = await fetchApi(path, init);
     const body = await readJson(response);
@@ -25,10 +25,15 @@ export function createClient(fetchApi) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+  const changeKey = async (init) => {
+    const result = await call("/cuddler/key", init);
+    onKeyChanged();
+    return result;
+  };
   return {
     status: ({ balance = false } = {}) => call(`/cuddler/status${balance ? "?balance=1" : ""}`),
-    saveKey: (key) => call("/cuddler/key", json("POST", { key })),
-    clearKey: () => call("/cuddler/key", { method: "DELETE" }),
+    saveKey: (key) => changeKey(json("POST", { key })),
+    clearKey: () => changeKey({ method: "DELETE" }),
     estimate: (kind, body) => call("/cuddler/estimate", json("POST", { kind, body })),
   };
 }

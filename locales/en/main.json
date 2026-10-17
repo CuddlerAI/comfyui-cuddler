@@ -3,5 +3,22 @@
     "Cuddler": "Cuddler",
     "Account": "Account",
     "Key": "API key"
+  },
+  "nodeDefs": {
+    "CuddlerVideo": {
+      "display_name": "Cuddler Video",
+      "description": "Text or first-frame video. Connect VIDEO to Save Video. Other modes are still in development.",
+      "inputs": {
+        "prompt": {
+          "name": "Prompt"
+        },
+        "max_usd": {
+          "name": "Spending limit (USD)"
+        },
+        "seed": {
+          "name": "Seed"
+        }
+      }
+    }
   }
 }

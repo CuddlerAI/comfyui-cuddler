@@ -28,7 +28,8 @@ OUTSIDE_COMFYUI = {"cuddler", "cuddler_host", "cuddler_plugin"}  # names the rep
 
 def comfy_stubs(user_dir):
     server = types.ModuleType("server")
-    server.PromptServer = types.SimpleNamespace(instance=types.SimpleNamespace(routes=web.RouteTableDef()))
+    server.PromptServer = types.SimpleNamespace(instance=types.SimpleNamespace(
+        routes=web.RouteTableDef(), client_id="offline-test", send_progress_text=mock.Mock()))
 
     class ComfyExtension(ABC):  # as comfy_api.latest: on_load is optional, get_node_list is abstract
         async def on_load(self):
@@ -40,12 +41,50 @@ def comfy_stubs(user_dir):
 
     latest = types.ModuleType("comfy_api.latest")
     latest.ComfyExtension = ComfyExtension
+
+    class Input:
+        def __init__(self, id, **kwargs):
+            self.id = id
+            self.__dict__.update(kwargs)
+
+    class Option:
+        def __init__(self, key, inputs):
+            self.key, self.inputs = key, inputs
+
+    class Schema:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    class NodeOutput:
+        def __init__(self, *args):
+            self.result = args
+
+        def __getitem__(self, index):
+            return self.result[index]
+
+    class ComfyNode:
+        hidden = types.SimpleNamespace(unique_id="test-node")
+
+    latest.io = types.SimpleNamespace(
+        ComfyNode=ComfyNode, Schema=Schema, NodeOutput=NodeOutput,
+        Int=types.SimpleNamespace(Input=Input), Float=types.SimpleNamespace(Input=Input),
+        String=types.SimpleNamespace(Input=Input), Combo=types.SimpleNamespace(Input=Input),
+        Boolean=types.SimpleNamespace(Input=Input), Image=types.SimpleNamespace(Input=Input),
+        Video=types.SimpleNamespace(Output=lambda: "VIDEO"),
+        DynamicCombo=types.SimpleNamespace(Input=Input, Option=Option),
+        ControlAfterGenerate=types.SimpleNamespace(fixed="fixed"),
+        Hidden=types.SimpleNamespace(unique_id="UNIQUE_ID"))
+    # Decoding is tested against real PyAV/ComfyUI in tests/host, never by this stand-in.
+    latest.InputImpl = types.SimpleNamespace(VideoFromFile=None)
     comfy_api = types.ModuleType("comfy_api")
     comfy_api.latest = latest
+    comfy = types.ModuleType("comfy")
+    comfy.model_management = types.SimpleNamespace(processing_interrupted=lambda: False)
     folder_paths = types.ModuleType("folder_paths")
     folder_paths.get_user_directory = lambda: str(user_dir)
     folder_paths.get_system_user_directory = lambda name="system": str(Path(user_dir) / f"__{name}")
-    return {"server": server, "comfy_api": comfy_api, "comfy_api.latest": latest, "folder_paths": folder_paths}
+    return {"server": server, "comfy_api": comfy_api, "comfy_api.latest": latest,
+            "comfy": comfy, "folder_paths": folder_paths}
 
 
 @contextlib.contextmanager
@@ -87,7 +126,8 @@ class EntrypointTest(unittest.TestCase):
             self.assertTrue(inspect.iscoroutinefunction(module.comfy_entrypoint))
             extension = asyncio.run(module.comfy_entrypoint())
             self.assertIsInstance(extension, sys.modules["comfy_api.latest"].ComfyExtension)
-            self.assertEqual(asyncio.run(extension.get_node_list()), [])
+            nodes = asyncio.run(extension.get_node_list())
+            self.assertEqual([node.__name__ for node in nodes], ["CuddlerVideo"])
             with self.assertLogs("cuddler", level="WARNING") as logs:
                 asyncio.run(extension.on_load())
                 for thread in threading.enumerate():

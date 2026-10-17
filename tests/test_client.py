@@ -39,6 +39,19 @@ class ClientTest(unittest.TestCase):
         self.assertEqual(caught.exception.code, "key_missing")
         self.assertEqual(self.transport.requests, [])
 
+    def test_recovery_identity_binds_the_credential_and_origin_without_a_request(self):
+        identity = self.client.recovery_identity()
+        self.assertRegex(identity, r"^[0-9a-f]{64}$")
+        self.assertEqual(identity, PlatformClient(self.transport, fakes.LIVE_KEY).recovery_identity())
+        self.assertNotEqual(identity, PlatformClient(self.transport, fakes.TEST_KEY).recovery_identity())
+        self.assertNotEqual(identity, PlatformClient(self.transport, fakes.LIVE_KEY,
+                                                    origin="https://other.example").recovery_identity())
+        self.assertNotIn(fakes.LIVE_KEY, identity)
+        with self.assertRaises(CuddlerError) as caught:
+            PlatformClient(self.transport).recovery_identity()
+        self.assertEqual(caught.exception.code, "key_missing")
+        self.assertEqual(self.transport.requests, [])
+
     def test_error_envelopes_become_cuddler_errors(self):
         self.transport.add("POST", "/videos/estimate", status=402, body=fakes.error("insufficient_balance", 402),
                            headers={"Retry-After": "30"})

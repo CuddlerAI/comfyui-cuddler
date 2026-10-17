@@ -44,12 +44,16 @@ class Uploader:
             return reused
         for _ in range(2):  # an abandoned attempt may have expired on the Platform: start over once, with a new key
             row = self._state.upload(digest)
+            identity = self._client.recovery_identity()
+            if row and row.get("credential_identity") != identity:
+                raise CuddlerError("recovery_required")
             key = row["idempotency_key"] if row else "upl-" + uuid.uuid4().hex
             if not row:
-                self._state.begin_upload(digest, key)
+                self._state.begin_upload(digest, key, credential_identity=identity)
             upload = self._client.create_upload(
                 {"kind": media_kind, "content_type": content_type, "bytes": len(data),
                  "filename": (filename or "")[-FILENAME_CHARS:]}, key)
+            self._state.remember_upload(digest, upload["id"], credential_identity=identity)
             if upload["status"] == "pending":
                 upload = self._send(upload, data, resumed=row is not None)
             if upload["status"] == "pending":
@@ -64,16 +68,27 @@ class Uploader:
 
     def _reuse(self, digest):
         row = self._state.upload(digest)
-        if not row or row["status"] != "ready":
+        if not row:
             return None
+        identity = self._client.recovery_identity()
+        if row["status"] != "ready" and row.get("credential_identity") == identity:
+            return None
+        if not row["upload_id"]:
+            # An upload creation with no response cannot safely be replayed in
+            # another organization, including legacy records with no binding.
+            raise CuddlerError("recovery_required")
         try:
             current = self._client.get_upload(row["upload_id"])
         except CuddlerError as error:
-            if error.code != "not_found":
-                raise
-            current = None
+            if error.code == "not_found":
+                raise CuddlerError("recovery_required", request_id=error.request_id) from error
+            raise
         if current and current["status"] == "ready":
+            self._state.finish_upload(digest, row["upload_id"], credential_identity=identity)
             return row["upload_id"]
+        if current["status"] == "pending":
+            self._state.remember_upload(digest, row["upload_id"], credential_identity=identity)
+            return None
         self._state.drop_upload(digest)
         return None
 
@@ -98,7 +113,7 @@ class Uploader:
             upload = self._client.complete_upload(upload_id)
         except CuddlerError as error:
             if error.code == "not_found":
-                return {"status": "expired"}
+                raise CuddlerError("recovery_required", request_id=error.request_id) from error
             if error.code != "network_error":
                 raise
             # No answer within the request's time, but the Platform keeps checking after the caller has gone.
@@ -112,5 +127,5 @@ class Uploader:
             except CuddlerError as error:
                 if error.code != "not_found":
                     raise
-                return {"status": "expired"}
+                raise CuddlerError("recovery_required", request_id=error.request_id) from error
         return upload
