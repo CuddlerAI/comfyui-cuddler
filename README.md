@@ -1,15 +1,14 @@
 # Cuddler for ComfyUI
 
-> **In development.** This plugin is not on the Comfy Registry yet. Version 1.0 adds the
-> Cuddler Video, Image, Speech and Music nodes. The current preview implements the catalog's
-> nine video modes plus image, speech and music nodes. Paid release acceptance is still
-> pending. This preview is not a completed 1.0 release.
+Cuddler Video, Image, Speech and Music nodes use the catalog to show available models
+and parameters. Your organization's access and every spending limit are checked by
+Cuddler before a request is accepted.
 
 [中文说明](README.zh-CN.md)
 
 Generate video, images, speech and music inside ComfyUI workflows with your
-[Cuddler Platform](https://platform.cuddler.ai) API key. Every model in Cuddler's public
-catalog is planned for four nodes, prices are shown on the node before you run, and every
+[Cuddler Platform](https://platform.cuddler.ai) API key. The four nodes use Cuddler's public
+catalog; prices are shown on the node before you run, and every
 run has a spending limit that Cuddler enforces.
 
 ## What you need
@@ -20,10 +19,12 @@ run has a spending limit that Cuddler enforces.
 
 ## Install
 
-After the 1.0 release: search for **Cuddler** in ComfyUI-Manager, or run `comfy node install cuddler`,
+Search for **Cuddler** in ComfyUI-Manager, or run `comfy node install cuddler`,
 then restart ComfyUI. The plugin needs no extra Python packages.
 
-## Video preview
+If Cuddler is not listed yet, its public release is still pending.
+
+## Video
 
 Choose a model and mode, write a prompt, and connect VIDEO to ComfyUI's **Save Video**.
 Depending on the model, modes include text, first frame, first/last frame, reference,
@@ -42,7 +43,7 @@ The selector and parameters come from the catalog. A model listed publicly may s
 to your organization; the authenticated estimate and create request enforce access and spending limits.
 Save the workflow with a fixed seed to recover the same operation after a restart.
 
-## Image and audio preview
+## Image and audio
 
 - **Cuddler Image:** choose a catalog model, mode and variant. Reference/edit modes accept
   connected IMAGE inputs from Load Image, up to the selected model's limit. Connect IMAGE to Save Image.

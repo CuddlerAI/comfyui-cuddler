@@ -1,12 +1,12 @@
 # Cuddler for ComfyUI
 
-> **开发中。** 插件还没有上架 Comfy Registry。1.0 版会加入 Cuddler Video、Image、Speech、Music
-> 四个节点。目前预览版已实现目录的九种视频用法，以及图片、语音和音乐节点；真实付费验收仍未完成，不能视为 1.0 正式版。
+Cuddler Video、Image、Speech、Music 四个节点根据目录展示可选模型和参数。
+组织的实际模型权限和每次花费上限均由 Cuddler 在接受请求前校验。
 
 [English](README.md)
 
 用你的 [Cuddler Platform](https://platform.cuddler.ai) API key，在 ComfyUI 工作流里生成视频、图片、语音和音乐。
-完整版本计划通过四个节点覆盖公开模型目录。运行前节点上会显示价格，每次运行都有花费上限，由 Cuddler 服务端强制执行。
+四个节点使用公开模型目录。运行前节点上会显示价格，每次运行都有花费上限，由 Cuddler 服务端强制执行。
 
 ## 需要准备
 
@@ -16,10 +16,12 @@
 
 ## 安装
 
-1.0 发布后：在 ComfyUI-Manager 里搜索 **Cuddler**，或者运行 `comfy node install cuddler`，然后重启 ComfyUI。
+在 ComfyUI-Manager 里搜索 **Cuddler**，或者运行 `comfy node install cuddler`，然后重启 ComfyUI。
 插件不需要额外安装 Python 包。
 
-## 视频预览版
+如果还搜不到 Cuddler，说明公开发行尚未可用。
+
+## 视频
 
 选择模型和用法，填写提示词，把 VIDEO 输出接到 ComfyUI 的 **Save Video**。按模型能力提供文生、首帧、首尾帧、混合参考、图片参考、视频参考、编辑、续写、动作控制。
 参考接口接受原生 IMAGE、VIDEO、AUDIO；每接入一项会自动增加接口，直到目录上限。图片不接受批量；视频保留宿主裁剪范围；上传素材移除工作流元数据。
@@ -30,7 +32,7 @@
 
 模型及参数来自公开目录，但模型能否被当前组织使用，仍由带身份的估价和创建接口检查。保存工作流并固定 seed，才能在重启后恢复同一个操作。
 
-## 图片与音频预览版
+## 图片与音频
 
 - **Cuddler Image**：选择模型、用法和版本。参考图和编辑模式可从 Load Image 接入图片，数量不超过模型上限；IMAGE 输出接 Save Image。
 - **Cuddler Speech**：选择模型、声音并填写文本；对话模型可选第二位说话人，也可用 `dialogue_script` 输入最多 50 句、10 种声音。每行写为 `1: 你好`、`2: 你好呀`，编号对应声音选项；使用脚本时留空主文本并关闭 `second_speaker`。AUDIO 输出接 Save Audio。语音估价需要将输入文本发送给 Cuddler，按文本和声音计算费用。

@@ -1,6 +1,6 @@
 [project]
 name = "cuddler"
-version = "0.1.0"
+version = "1.0.0"
 description = "Generate video, images, speech and music in ComfyUI with your Cuddler Platform API key. Prices are shown before you run, and every run has a spending limit."
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
