@@ -3,5 +3,58 @@
     "Cuddler": "Cuddler",
     "Account": "账户",
     "Key": "API key"
+  },
+  "nodeDefs": {
+    "CuddlerVideo": {
+      "display_name": "Cuddler 视频",
+      "description": "使用原生参考素材生成、编辑或续写视频。VIDEO 接 Save Video；开启 return_last_frame 后可输出末帧 IMAGE。",
+      "inputs": {
+        "prompt": {
+          "name": "提示词"
+        },
+        "max_usd": {
+          "name": "单次花费上限（美元）"
+        },
+        "seed": {
+          "name": "种子"
+        }
+      }
+    },
+    "CuddlerImage": {
+      "display_name": "Cuddler 图片",
+      "description": "生成图片；将 IMAGE 输出接到 Save Image。",
+      "inputs": {
+        "max_usd": {
+          "name": "花费上限（USD）"
+        },
+        "seed": {
+          "name": "种子"
+        }
+      }
+    },
+    "CuddlerSpeech": {
+      "display_name": "Cuddler 语音",
+      "description": "生成语音，或输入最多 50 句、10 种声音的对话。AUDIO 接 Save Audio。",
+      "inputs": {
+        "max_usd": {
+          "name": "花费上限（USD）"
+        },
+        "seed": {
+          "name": "种子"
+        }
+      }
+    },
+    "CuddlerMusic": {
+      "display_name": "Cuddler 音乐",
+      "description": "生成音乐；将 AUDIO 输出接到 Save Audio。",
+      "inputs": {
+        "max_usd": {
+          "name": "花费上限（USD）"
+        },
+        "seed": {
+          "name": "种子"
+        }
+      }
+    }
   }
 }

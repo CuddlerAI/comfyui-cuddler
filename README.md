@@ -1,13 +1,14 @@
 # Cuddler for ComfyUI
 
-> **In development.** This plugin is not on the Comfy Registry yet. Version 1.0 adds the
-> Cuddler Video, Image, Speech and Music nodes; until then it only provides the settings page.
+Cuddler Video, Image, Speech and Music nodes use the catalog to show available models
+and parameters. Your organization's access and every spending limit are checked by
+Cuddler before a request is accepted.
 
 [中文说明](README.zh-CN.md)
 
 Generate video, images, speech and music inside ComfyUI workflows with your
-[Cuddler Platform](https://platform.cuddler.ai) API key. Every model in Cuddler's public
-catalog is available from four nodes, prices are shown on the node before you run, and every
+[Cuddler Platform](https://platform.cuddler.ai) API key. The four nodes use Cuddler's public
+catalog; prices are shown on the node before you run, and every
 run has a spending limit that Cuddler enforces.
 
 ## What you need
@@ -18,8 +19,45 @@ run has a spending limit that Cuddler enforces.
 
 ## Install
 
-After the 1.0 release: search for **Cuddler** in ComfyUI-Manager, or run `comfy node install cuddler`,
+Search for **Cuddler** in ComfyUI-Manager, or run `comfy node install cuddler`,
 then restart ComfyUI. The plugin needs no extra Python packages.
+
+If Cuddler is not listed yet, its public release is still pending.
+
+## Video
+
+Choose a model and mode, write a prompt, and connect VIDEO to ComfyUI's **Save Video**.
+Depending on the model, modes include text, first frame, first/last frame, reference,
+image-reference, video-reference, edit, extend and motion control. Connect native IMAGE,
+VIDEO or AUDIO inputs to the reference slots; each connection exposes another slot up to
+the catalog limit. Image batches are rejected. Video inputs preserve the host's trim range;
+reference uploads omit workflow metadata. When enabled for a supported model,
+`return_last_frame` supplies the second IMAGE output; otherwise that output is empty.
+
+Video references have a 200 MiB limit (100 MiB for motion control); audio references are
+2–15 seconds and at most 50 MiB. Model-specific duration, dimensions and count limits still apply.
+For video-dependent pricing the label shows a starting price. Before creation, the plugin
+checks an exact estimate using the uploaded clips' actual durations against your spending limit.
+
+The selector and parameters come from the catalog. A model listed publicly may still be unavailable
+to your organization; the authenticated estimate and create request enforce access and spending limits.
+Save the workflow with a fixed seed to recover the same operation after a restart.
+
+## Image and audio
+
+- **Cuddler Image:** choose a catalog model, mode and variant. Reference/edit modes accept
+  connected IMAGE inputs from Load Image, up to the selected model's limit. Connect IMAGE to Save Image.
+- **Cuddler Speech:** choose a model and voice, then enter the text. Dialogue models also offer
+  an optional second speaker, or a `dialogue_script` of up to 50 turns using voice selectors 1–10.
+  Write one turn per line, such as `1: Hello` and `2: Hi`; leave the main text empty and turn off
+  `second_speaker` when using the script. Connect AUDIO to Save Audio. The price estimate sends the entered
+  text to Cuddler because speech is metered by text and voice.
+- **Cuddler Music:** choose a model and prompt, then connect AUDIO to Save Audio.
+
+Image results are decoded as RGB; audio results use the source sample rate and one or two channels.
+Downloads are bounded to 30 MiB / 32 million pixels for images and 50 MiB / 10 minutes for audio.
+An invalid or oversized result stops the node. Re-running retains the original job instead of paying
+for a replacement. The seed identifies the local operation even when a model does not accept a seed.
 
 ## Add your API key
 
@@ -40,7 +78,8 @@ variable (comma separated; `.example.com` covers every name under it) and restar
 - Each node has a spending limit per run (default $2). Cuddler refuses to start a job that could
   cost more than the limit, and never charges more than it.
 - Running a node again with the same inputs and the same seed reuses the earlier result for
-  7 days instead of paying again. Change the seed to get a new one.
+  its retention period instead of paying again. Change the seed to get a new one. Once a result has
+  expired, running it again creates a new job and charges again.
 - If you stop a run while a video, speech or music job is still queued, the job is cancelled and
   nothing is charged. Image jobs and jobs that have already started cannot be cancelled: they
   finish and are charged, and running the node again collects the result.
@@ -51,17 +90,22 @@ variable (comma separated; `.example.com` covers every name under it) and restar
   from `__` folders over HTTP, and on macOS and Linux the file is readable only by your account.
 - The key is never written to workflows, to image or video metadata, to ComfyUI's settings or to logs.
 - `ComfyUI/user/__cuddler/state.sqlite3` keeps run fingerprints and file hashes, idempotency keys,
-  job and upload ids and each run's spending limit, so a crash or a lost connection never creates a
-  second job or uploads a file twice. It holds no prompts or media. When ComfyUI starts, the plugin
-  deletes job records last updated more than 8 days ago and upload records more than 29 days old
-  (1 hour for an upload that never finished).
+  job and upload ids, spending limits and opaque credential bindings. It holds no prompts or media.
+  Unknown submissions retain their original key and request details for recovery. Unresolved records
+  are kept until their outcome can be established; terminal jobs expire after 8 days and ready uploads
+  after 29 days.
+- If you change your API key, known jobs are recovered only after the replacement key successfully
+  reads them. A submission without a known job id requires its original key. A missing binding,
+  unreadable job or damaged database stops the run instead of creating a new paid job. Preserve the
+  original records and check the Platform console or contact support; **do not delete the database to retry**.
+  Keep `state.initialized` with the database: it prevents a missing database from being mistaken for a new installation.
 - Every job sent to Cuddler carries the metadata `client: comfyui-cuddler/<version>`, so Cuddler
   can count jobs made from ComfyUI, and every request's User-Agent names the plugin and Python
   versions. Nothing else about you or your machine is sent. Reference files you upload keep their
   file names.
 - ComfyUI has no login. Anyone who can open your ComfyUI page can spend with your key, so do not
-  expose ComfyUI to a network you do not trust. The per-run limit and your account's daily limit
-  cap what can be spent.
+  expose ComfyUI to a network you do not trust. The per-run limit caps each job, not total spending.
+  An account daily limit applies only if one has been configured; do not assume a default total cap.
 - If ComfyUI runs on another machine, a key typed on the settings page travels over that connection.
   Prefer `CUDDLER_API_KEY` there.
 
@@ -74,6 +118,10 @@ npm test
 ```
 
 Before a release, refresh the bundled model list with `python scripts/export_catalog_snapshot.py`.
+
+For operator acceptance, follow [the video acceptance runbook](docs/acceptance/video-paid.md).
+Its preflight reads the catalog, balance and estimate only. Real generation and settlement require
+the recorded budget approval and separate evidence; host CI does not replace that acceptance.
 
 ## License
 

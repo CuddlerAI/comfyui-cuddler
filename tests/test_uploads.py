@@ -44,12 +44,14 @@ class UploaderTest(unittest.TestCase):
         self.assertEqual(self.uploader.ensure(PNG, "image", "image/png", "again.png"), fakes.UPLOAD_ID)
         self.assertEqual(len(self.transport.calls("POST", "/uploads")), 1)
 
-    def test_uploads_again_when_the_platform_no_longer_has_it(self):
+    def test_a_known_upload_missing_under_the_current_key_requires_reconciliation(self):
         self.script_happy_path()
         self.uploader.ensure(PNG, "image", "image/png", "frame.png")
         self.transport.add("GET", f"/uploads/{fakes.UPLOAD_ID}", status=404, body=fakes.error("not_found", 404))
-        self.uploader.ensure(PNG, "image", "image/png", "frame.png")
-        self.assertEqual(len(self.transport.calls("POST", "/uploads")), 2)
+        with self.assertRaises(CuddlerError) as caught:
+            self.uploader.ensure(PNG, "image", "image/png", "frame.png")
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(len(self.transport.calls("POST", "/uploads")), 1)
 
     def test_a_retry_after_a_crash_reuses_the_idempotency_key(self):
         self.transport.fail("POST", "/uploads", CuddlerError("network_error"))
@@ -154,22 +156,26 @@ class UploaderTest(unittest.TestCase):
         self.assertEqual(len(self.transport.calls("PUT", fakes.PUT_URL)), 1)
         self.assertEqual(len(self.transport.calls("POST", "/uploads")), 1)
 
-    def test_an_upload_gone_when_completing_is_started_over(self):
+    def test_an_upload_missing_when_completing_is_not_blindly_started_over(self):
         self.transport.add("POST", "/uploads", status=201, body=fakes.upload())
         self.transport.add("PUT", fakes.PUT_URL, body=b"")
         self.transport.add("POST", COMPLETE, status=404, body=fakes.error("not_found", 404))
         self.transport.add("POST", COMPLETE, body=fakes.upload("ready"))
-        self.assertEqual(self.uploader.ensure(PNG, "image", "image/png", "frame.png"), fakes.UPLOAD_ID)
-        self.assertEqual(len(set(self.keys())), 2)
+        with self.assertRaises(CuddlerError) as caught:
+            self.uploader.ensure(PNG, "image", "image/png", "frame.png")
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(len(set(self.keys())), 1)
 
-    def test_an_upload_gone_while_waiting_is_started_over(self):
+    def test_an_upload_missing_while_waiting_is_not_blindly_started_over(self):
         self.transport.add("POST", "/uploads", status=201, body=fakes.upload())
         self.transport.add("PUT", fakes.PUT_URL, body=b"")
         self.transport.add("POST", COMPLETE, body=fakes.upload("pending", upload_url=None))
         self.transport.add("POST", COMPLETE, body=fakes.upload("ready"))
         self.transport.add("GET", UPLOAD, status=404, body=fakes.error("not_found", 404))
-        self.assertEqual(self.uploader.ensure(PNG, "image", "image/png", "frame.png"), fakes.UPLOAD_ID)
-        self.assertEqual(len(set(self.keys())), 2)
+        with self.assertRaises(CuddlerError) as caught:
+            self.uploader.ensure(PNG, "image", "image/png", "frame.png")
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(len(set(self.keys())), 1)
 
     def test_the_same_bytes_under_another_type_are_another_upload(self):
         self.transport.add("POST", "/uploads", status=201, body=fakes.upload())
@@ -194,6 +200,35 @@ class UploaderTest(unittest.TestCase):
             with self.assertRaises(CuddlerError):
                 self.uploader.ensure(PNG, "image", "image/png", "frame.png")
         self.assertEqual(len(set(self.keys())), 2)
+
+    def test_an_unknown_upload_response_cannot_be_replayed_with_another_key(self):
+        self.transport.fail("POST", "/uploads", CuddlerError("network_error"))
+        with self.assertRaises(CuddlerError):
+            self.uploader.ensure(PNG, "image", "image/png", "frame.png")
+        client = PlatformClient(self.transport, "cud_sk_live_" + "B" * 20)
+        other = Uploader(client, self.state, sleep=lambda s: None)
+        before = len(self.transport.requests)
+        with self.assertRaises(CuddlerError) as caught:
+            other.ensure(PNG, "image", "image/png", "frame.png")
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(len(self.transport.requests), before)
+
+    def test_an_unbound_legacy_upload_without_an_id_stops_before_http(self):
+        from cuddler_plugin.cuddler.fingerprint import digest_bytes
+        digest = f"{digest_bytes(PNG)}:image:image/png"
+        self.state.begin_upload(digest, "legacy-upload")
+        with self.assertRaises(CuddlerError) as caught:
+            self.uploader.ensure(PNG, "image", "image/png", "frame.png")
+        self.assertEqual(caught.exception.code, "recovery_required")
+        self.assertEqual(self.transport.requests, [])
+
+    def test_a_ready_upload_supports_key_rotation_after_reading_the_known_id(self):
+        self.script_happy_path()
+        self.uploader.ensure(PNG, "image", "image/png", "frame.png")
+        client = PlatformClient(self.transport, "cud_sk_live_" + "B" * 20)
+        self.transport.add("GET", UPLOAD, body=fakes.upload("ready"))
+        self.assertEqual(Uploader(client, self.state).ensure(PNG, "image", "image/png", "frame.png"), fakes.UPLOAD_ID)
+        self.assertEqual(len(self.keys()), 1)
 
 
 if __name__ == "__main__":

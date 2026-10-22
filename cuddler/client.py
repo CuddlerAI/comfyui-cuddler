@@ -1,4 +1,5 @@
 """The Platform API calls the plugin makes. Every response is checked before use."""
+import hashlib
 import json
 import re
 
@@ -98,6 +99,19 @@ class PlatformClient:
         self._key = key
         self.origin = origin.rstrip("/")
 
+    def recovery_identity(self):
+        """A local credential binding; never a claim about the key's organization.
+
+        Unknown submissions may only be replayed with the credential that sent them.
+        A replacement key can recover a known job by successfully reading it first.
+        Only this one-way digest is stored with recovery records, never the key.
+        """
+        if not self._key:
+            raise CuddlerError("key_missing")
+        value = json.dumps(["cuddler-recovery-v1", self.origin, self._key],
+                           separators=(",", ":")).encode("utf-8")
+        return hashlib.sha256(value).hexdigest()
+
     def _call(self, method, path, body=None, *, idempotency_key=None, auth=True, timeout=30.0):
         headers = {"Accept": "application/json"}
         if auth:
@@ -159,10 +173,12 @@ class PlatformClient:
     def get(self, kind, job_id):
         """The job. A succeeded job whose file was deleted after its retention raises `output_expired`."""
         path = f"/{_path(kind)}/{public_id(job_id, JOB_PREFIXES[kind])}"
-        job = _job(kind, self._call("GET", path)[0])
-        if job["id"] != job_id:
+        value = self._call("GET", path)[0]
+        # Expiry can authorize a new paid attempt. It is trustworthy only after
+        # the reply has been bound to the exact task the caller asked to recover.
+        if value.get("id") != job_id:
             raise CuddlerError("invalid_response")
-        return job
+        return _job(kind, value)
 
     def cancel(self, kind, job_id):
         """Cancel a queued job. Images have no cancel route, so they answer `not_cancelable` without a request."""
@@ -170,10 +186,10 @@ class PlatformClient:
         if kind not in CANCELABLE:
             raise CuddlerError("not_cancelable")
         path = f"/{base}/{public_id(job_id, JOB_PREFIXES[kind])}/cancel"
-        job = _job(kind, self._call("POST", path)[0])
-        if job["id"] != job_id:
+        value = self._call("POST", path)[0]
+        if value.get("id") != job_id:
             raise CuddlerError("invalid_response")
-        return job
+        return _job(kind, value)
 
     # Uploads.
     def create_upload(self, body, idempotency_key):

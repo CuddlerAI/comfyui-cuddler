@@ -133,6 +133,27 @@ class ParseTest(unittest.TestCase):
 
 
 class StoreTest(unittest.TestCase):
+    def test_release_models_remain_available_offline_on_first_start(self):
+        snapshot = Path(__file__).resolve().parents[1] / "data" / "catalog_snapshot.json"
+        with tempfile.TemporaryDirectory() as directory:
+            def offline():
+                raise CuddlerError("network_error")
+
+            store = CatalogStore(snapshot, Path(directory) / "no-cache", offline)
+            catalog = store.current()
+            self.assertEqual(catalog.source, "snapshot")
+            self.assertEqual(catalog.problems(), [])
+            release_models = {"minimax-speech-2.8-hd", "minimax-speech-2.8-turbo",
+                              "eleven-music-2.5", "ideogram-4.5", "runway-gen4-turbo",
+                              "runway-gen4.5", "seedream-5-pro"}
+            self.assertTrue(release_models.issubset(catalog.models),
+                            f"missing release models: {sorted(release_models - catalog.models.keys())}")
+            for model in catalog.of_kind("speech"):
+                self.assertTrue(catalog.voices.get(model["id"]), model["id"])
+            with self.assertRaises(CuddlerError):
+                store.refresh()
+            self.assertEqual(store.current(), catalog)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.dir = Path(self.tmp.name)

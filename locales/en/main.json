@@ -3,5 +3,58 @@
     "Cuddler": "Cuddler",
     "Account": "Account",
     "Key": "API key"
+  },
+  "nodeDefs": {
+    "CuddlerVideo": {
+      "display_name": "Cuddler Video",
+      "description": "Generate, edit or extend video with native references. Connect VIDEO to Save Video; enable return_last_frame for the optional IMAGE output.",
+      "inputs": {
+        "prompt": {
+          "name": "Prompt"
+        },
+        "max_usd": {
+          "name": "Spending limit (USD)"
+        },
+        "seed": {
+          "name": "Seed"
+        }
+      }
+    },
+    "CuddlerImage": {
+      "display_name": "Cuddler Image",
+      "description": "Generate an image; connect IMAGE to Save Image.",
+      "inputs": {
+        "max_usd": {
+          "name": "Spending limit (USD)"
+        },
+        "seed": {
+          "name": "Seed"
+        }
+      }
+    },
+    "CuddlerSpeech": {
+      "display_name": "Cuddler Speech",
+      "description": "Generate speech or up to 50 dialogue turns with 10 voices. Connect AUDIO to Save Audio.",
+      "inputs": {
+        "max_usd": {
+          "name": "Spending limit (USD)"
+        },
+        "seed": {
+          "name": "Seed"
+        }
+      }
+    },
+    "CuddlerMusic": {
+      "display_name": "Cuddler Music",
+      "description": "Generate music; connect AUDIO to Save Audio.",
+      "inputs": {
+        "max_usd": {
+          "name": "Spending limit (USD)"
+        },
+        "seed": {
+          "name": "Seed"
+        }
+      }
+    }
   }
 }

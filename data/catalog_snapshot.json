@@ -36,6 +36,18 @@
    "display_name": "Seedance 2.5",
    "enabled": true,
    "id": "seedance-2.5",
+   "image_asset_reference": {
+    "enabled": true,
+    "excluded_resolutions": [
+     "4K"
+    ],
+    "portrait_authorization": false,
+    "roles": [
+     "reference_image",
+     "first_frame",
+     "last_frame"
+    ]
+   },
    "max_duration": 30,
    "max_reference_audios": 10,
    "max_reference_images": 30,
@@ -106,6 +118,18 @@
    "display_name": "Seedance 2.0",
    "enabled": true,
    "id": "seedance-2.0",
+   "image_asset_reference": {
+    "enabled": true,
+    "excluded_resolutions": [
+     "4K"
+    ],
+    "portrait_authorization": false,
+    "roles": [
+     "reference_image",
+     "first_frame",
+     "last_frame"
+    ]
+   },
    "max_duration": 15,
    "max_reference_audios": 3,
    "max_reference_images": 9,
@@ -184,6 +208,14 @@
    "display_name": "Seedance 2.0 mini",
    "enabled": true,
    "id": "seedance-2.0-mini",
+   "image_asset_reference": {
+    "enabled": false,
+    "excluded_resolutions": [
+     "4K"
+    ],
+    "portrait_authorization": false,
+    "roles": []
+   },
    "max_duration": 15,
    "max_reference_audios": 3,
    "max_reference_images": 9,
@@ -8075,6 +8107,433 @@
      "variant": "default"
     }
    ],
+   "display_name": "Runway Gen-4.5",
+   "enabled": true,
+   "id": "runway-gen4.5",
+   "kind": "video",
+   "max_duration": 10,
+   "max_reference_audios": 0,
+   "max_reference_images": 0,
+   "max_reference_videos": 0,
+   "max_references": 0,
+   "min_duration": 2,
+   "native_audio": false,
+   "object": "model",
+   "price_ends_at": null,
+   "price_version": "2026-10-11-official",
+   "pricing": [
+    {
+     "bills_input_video": false,
+     "duration": 2,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "text",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 3,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "text",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 4,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "text",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 5,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "text",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 6,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "text",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 7,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "text",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 8,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "text",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 9,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "text",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 10,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "text",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 2,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 3,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 4,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 5,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 6,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 7,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 8,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 9,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 10,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 8400000,
+     "usd_per_second": "0.084000",
+     "variant": "default"
+    }
+   ],
+   "request_fields": [
+    "first_frame"
+   ],
+   "resolutions": [
+    "720p"
+   ],
+   "unit": "second"
+  },
+  {
+   "aspect_ratios": [
+    "16:9",
+    "9:16"
+   ],
+   "audio_only_reference": false,
+   "choices": [
+    {
+     "mode": "image",
+     "variant": "default"
+    }
+   ],
+   "display_name": "Runway Gen-4 Turbo",
+   "enabled": true,
+   "id": "runway-gen4-turbo",
+   "kind": "video",
+   "max_duration": 10,
+   "max_reference_audios": 0,
+   "max_reference_images": 0,
+   "max_reference_videos": 0,
+   "max_references": 0,
+   "min_duration": 2,
+   "native_audio": false,
+   "object": "model",
+   "price_ends_at": null,
+   "price_version": "2026-10-11-official",
+   "pricing": [
+    {
+     "bills_input_video": false,
+     "duration": 2,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 3500000,
+     "usd_per_second": "0.035000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 3,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 3500000,
+     "usd_per_second": "0.035000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 4,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 3500000,
+     "usd_per_second": "0.035000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 5,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 3500000,
+     "usd_per_second": "0.035000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 6,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 3500000,
+     "usd_per_second": "0.035000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 7,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 3500000,
+     "usd_per_second": "0.035000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 8,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 3500000,
+     "usd_per_second": "0.035000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 9,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 3500000,
+     "usd_per_second": "0.035000",
+     "variant": "default"
+    },
+    {
+     "bills_input_video": false,
+     "duration": 10,
+     "free_input_images": 0,
+     "generate_audio": false,
+     "mode": "image",
+     "resolution": "720p",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_input_seconds": 0,
+     "retail_micros_per_100_seconds": 3500000,
+     "usd_per_second": "0.035000",
+     "variant": "default"
+    }
+   ],
+   "request_fields": [
+    "first_frame"
+   ],
+   "resolutions": [
+    "720p"
+   ],
+   "unit": "second"
+  },
+  {
+   "aspect_ratios": [
+    "16:9",
+    "9:16"
+   ],
+   "audio_only_reference": false,
+   "choices": [
+    {
+     "mode": "text",
+     "variant": "default"
+    },
+    {
+     "mode": "image",
+     "variant": "default"
+    }
+   ],
    "display_name": "Veo 3.1",
    "enabled": true,
    "id": "veo-3.1",
@@ -8371,202 +8830,6 @@
      "resolution": "1080p",
      "retail_micros_per_100_seconds": 2500000,
      "usd_per_second": "0.025000"
-    }
-   ],
-   "request_fields": [
-    "first_frame",
-    "generate_audio"
-   ],
-   "resolutions": [
-    "720p",
-    "1080p"
-   ],
-   "unit": "second"
-  },
-  {
-   "aspect_ratios": [
-    "16:9",
-    "9:16"
-   ],
-   "audio_only_reference": false,
-   "choices": [
-    {
-     "mode": "text",
-     "variant": "default"
-    },
-    {
-     "mode": "image",
-     "variant": "default"
-    }
-   ],
-   "display_name": "Veo 3",
-   "enabled": true,
-   "id": "veo-3",
-   "kind": "video",
-   "max_duration": 8,
-   "max_reference_audios": 0,
-   "max_reference_images": 0,
-   "max_reference_videos": 0,
-   "max_references": 0,
-   "min_duration": 4,
-   "native_audio": true,
-   "object": "model",
-   "price_ends_at": null,
-   "price_version": "2026-10-11-official",
-   "pricing": [
-    {
-     "duration": 4,
-     "generate_audio": true,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 20000000,
-     "usd_per_second": "0.200000"
-    },
-    {
-     "duration": 6,
-     "generate_audio": true,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 20000000,
-     "usd_per_second": "0.200000"
-    },
-    {
-     "duration": 8,
-     "generate_audio": true,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 20000000,
-     "usd_per_second": "0.200000"
-    },
-    {
-     "duration": 4,
-     "generate_audio": false,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 10000000,
-     "usd_per_second": "0.100000"
-    },
-    {
-     "duration": 6,
-     "generate_audio": false,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 10000000,
-     "usd_per_second": "0.100000"
-    },
-    {
-     "duration": 8,
-     "generate_audio": false,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 10000000,
-     "usd_per_second": "0.100000"
-    },
-    {
-     "duration": 8,
-     "generate_audio": true,
-     "resolution": "1080p",
-     "retail_micros_per_100_seconds": 20000000,
-     "usd_per_second": "0.200000"
-    },
-    {
-     "duration": 8,
-     "generate_audio": false,
-     "resolution": "1080p",
-     "retail_micros_per_100_seconds": 10000000,
-     "usd_per_second": "0.100000"
-    }
-   ],
-   "request_fields": [
-    "first_frame",
-    "generate_audio"
-   ],
-   "resolutions": [
-    "720p",
-    "1080p"
-   ],
-   "unit": "second"
-  },
-  {
-   "aspect_ratios": [
-    "16:9",
-    "9:16"
-   ],
-   "audio_only_reference": false,
-   "choices": [
-    {
-     "mode": "text",
-     "variant": "default"
-    },
-    {
-     "mode": "image",
-     "variant": "default"
-    }
-   ],
-   "display_name": "Veo 3 Fast",
-   "enabled": true,
-   "id": "veo-3-fast",
-   "kind": "video",
-   "max_duration": 8,
-   "max_reference_audios": 0,
-   "max_reference_images": 0,
-   "max_reference_videos": 0,
-   "max_references": 0,
-   "min_duration": 4,
-   "native_audio": true,
-   "object": "model",
-   "price_ends_at": null,
-   "price_version": "2026-10-11-official",
-   "pricing": [
-    {
-     "duration": 4,
-     "generate_audio": true,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 5000000,
-     "usd_per_second": "0.050000"
-    },
-    {
-     "duration": 6,
-     "generate_audio": true,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 5000000,
-     "usd_per_second": "0.050000"
-    },
-    {
-     "duration": 8,
-     "generate_audio": true,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 5000000,
-     "usd_per_second": "0.050000"
-    },
-    {
-     "duration": 4,
-     "generate_audio": false,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 4000000,
-     "usd_per_second": "0.040000"
-    },
-    {
-     "duration": 6,
-     "generate_audio": false,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 4000000,
-     "usd_per_second": "0.040000"
-    },
-    {
-     "duration": 8,
-     "generate_audio": false,
-     "resolution": "720p",
-     "retail_micros_per_100_seconds": 4000000,
-     "usd_per_second": "0.040000"
-    },
-    {
-     "duration": 8,
-     "generate_audio": true,
-     "resolution": "1080p",
-     "retail_micros_per_100_seconds": 6000000,
-     "usd_per_second": "0.060000"
-    },
-    {
-     "duration": 8,
-     "generate_audio": false,
-     "resolution": "1080p",
-     "retail_micros_per_100_seconds": 5000000,
-     "usd_per_second": "0.050000"
     }
    ],
    "request_fields": [
@@ -8978,6 +9241,92 @@
      "variant": "default"
     },
     {
+     "mode": "reference",
+     "variant": "default"
+    }
+   ],
+   "display_name": "Seedream 5 Pro",
+   "enabled": true,
+   "id": "seedream-5-pro",
+   "kind": "image",
+   "max_duration": 0,
+   "max_reference_audios": 0,
+   "max_reference_images": 10,
+   "max_reference_videos": 0,
+   "max_references": 10,
+   "min_duration": 0,
+   "native_audio": false,
+   "object": "model",
+   "price_ends_at": null,
+   "price_version": "2026-10-11-official",
+   "pricing": [
+    {
+     "free_input_images": 1,
+     "resolution": "2K",
+     "retail_micros_per_100_input_images": 210000,
+     "retail_micros_per_100_jobs": 6300000,
+     "usd_by_reference_count": [
+      "0.063000",
+      "0.063000",
+      "0.065100",
+      "0.067200",
+      "0.069300",
+      "0.071400",
+      "0.073500",
+      "0.075600",
+      "0.077700",
+      "0.079800",
+      "0.081900"
+     ],
+     "usd_per_image": "0.063000",
+     "usd_per_input_image": "0.002100"
+    },
+    {
+     "free_input_images": 1,
+     "resolution": "4K",
+     "retail_micros_per_100_input_images": 210000,
+     "retail_micros_per_100_jobs": 6300000,
+     "usd_by_reference_count": [
+      "0.063000",
+      "0.063000",
+      "0.065100",
+      "0.067200",
+      "0.069300",
+      "0.071400",
+      "0.073500",
+      "0.075600",
+      "0.077700",
+      "0.079800",
+      "0.081900"
+     ],
+     "usd_per_image": "0.063000",
+     "usd_per_input_image": "0.002100"
+    }
+   ],
+   "request_fields": [
+    "reference_images"
+   ],
+   "resolutions": [
+    "2K",
+    "4K"
+   ],
+   "unit": "image"
+  },
+  {
+   "aspect_ratios": [
+    "1:1",
+    "4:3",
+    "3:4",
+    "16:9",
+    "9:16"
+   ],
+   "audio_only_reference": false,
+   "choices": [
+    {
+     "mode": "text",
+     "variant": "default"
+    },
+    {
      "mode": "edit",
      "variant": "default"
     }
@@ -9213,6 +9562,124 @@
      "usd_per_image": "0.042000",
      "usd_per_input_image": "0.000000",
      "variant": "default"
+    }
+   ],
+   "request_fields": [],
+   "resolutions": [
+    "1K",
+    "2K"
+   ],
+   "unit": "image"
+  },
+  {
+   "aspect_ratios": [
+    "1:1",
+    "4:3",
+    "3:4",
+    "16:9",
+    "9:16"
+   ],
+   "audio_only_reference": false,
+   "choices": [
+    {
+     "mode": "text",
+     "variant": "fast"
+    },
+    {
+     "mode": "text",
+     "variant": "default"
+    },
+    {
+     "mode": "text",
+     "variant": "pro"
+    }
+   ],
+   "display_name": "Ideogram 4.5",
+   "enabled": true,
+   "id": "ideogram-4.5",
+   "kind": "image",
+   "max_duration": 0,
+   "max_reference_audios": 0,
+   "max_reference_images": 0,
+   "max_reference_videos": 0,
+   "max_references": 0,
+   "min_duration": 0,
+   "native_audio": false,
+   "object": "model",
+   "price_ends_at": null,
+   "price_version": "2026-10-11-official",
+   "pricing": [
+    {
+     "mode": "text",
+     "resolution": "1K",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_jobs": 2100000,
+     "usd_by_reference_count": [
+      "0.021000"
+     ],
+     "usd_per_image": "0.021000",
+     "usd_per_input_image": "0.000000",
+     "variant": "fast"
+    },
+    {
+     "mode": "text",
+     "resolution": "2K",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_jobs": 2100000,
+     "usd_by_reference_count": [
+      "0.021000"
+     ],
+     "usd_per_image": "0.021000",
+     "usd_per_input_image": "0.000000",
+     "variant": "fast"
+    },
+    {
+     "mode": "text",
+     "resolution": "1K",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_jobs": 4200000,
+     "usd_by_reference_count": [
+      "0.042000"
+     ],
+     "usd_per_image": "0.042000",
+     "usd_per_input_image": "0.000000",
+     "variant": "default"
+    },
+    {
+     "mode": "text",
+     "resolution": "2K",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_jobs": 4200000,
+     "usd_by_reference_count": [
+      "0.042000"
+     ],
+     "usd_per_image": "0.042000",
+     "usd_per_input_image": "0.000000",
+     "variant": "default"
+    },
+    {
+     "mode": "text",
+     "resolution": "1K",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_jobs": 7000000,
+     "usd_by_reference_count": [
+      "0.070000"
+     ],
+     "usd_per_image": "0.070000",
+     "usd_per_input_image": "0.000000",
+     "variant": "pro"
+    },
+    {
+     "mode": "text",
+     "resolution": "2K",
+     "retail_micros_per_100_input_images": 0,
+     "retail_micros_per_100_jobs": 7000000,
+     "usd_by_reference_count": [
+      "0.070000"
+     ],
+     "usd_per_image": "0.070000",
+     "usd_per_input_image": "0.000000",
+     "variant": "pro"
     }
    ],
    "request_fields": [],
@@ -9750,34 +10217,40 @@
    "min_duration": 0,
    "native_audio": false,
    "object": "model",
-   "price_ends_at": null,
-   "price_version": "2026-10-11-official",
+   "price_ends_at": "2026-11-09T16:00:00Z",
+   "price_version": "2026-10-27-gpt-image-launch",
    "pricing": [
     {
+     "list_usd_per_image": "0.004116",
+     "list_usd_per_million_tokens": "21.000000",
      "mode": "text",
      "resolution": "1K",
-     "retail_micros_per_100_million_tokens": 2100000000,
-     "usd_per_image": "0.004116",
+     "retail_micros_per_100_million_tokens": 1050000000,
+     "usd_per_image": "0.002058",
      "usd_per_input_image": "0.000000",
-     "usd_per_million_tokens": "21.000000",
+     "usd_per_million_tokens": "10.500000",
      "variant": "fast"
     },
     {
+     "list_usd_per_image": "0.009219",
+     "list_usd_per_million_tokens": "21.000000",
      "mode": "text",
      "resolution": "1K",
-     "retail_micros_per_100_million_tokens": 2100000000,
-     "usd_per_image": "0.009219",
+     "retail_micros_per_100_million_tokens": 1050000000,
+     "usd_per_image": "0.004610",
      "usd_per_input_image": "0.000000",
-     "usd_per_million_tokens": "21.000000",
+     "usd_per_million_tokens": "10.500000",
      "variant": "default"
     },
     {
+     "list_usd_per_image": "0.036876",
+     "list_usd_per_million_tokens": "21.000000",
      "mode": "text",
      "resolution": "1K",
-     "retail_micros_per_100_million_tokens": 2100000000,
-     "usd_per_image": "0.036876",
+     "retail_micros_per_100_million_tokens": 1050000000,
+     "usd_per_image": "0.018438",
      "usd_per_input_image": "0.000000",
-     "usd_per_million_tokens": "21.000000",
+     "usd_per_million_tokens": "10.500000",
      "variant": "pro"
     }
    ],
@@ -9820,34 +10293,40 @@
    "min_duration": 0,
    "native_audio": false,
    "object": "model",
-   "price_ends_at": null,
-   "price_version": "2026-10-11-official",
+   "price_ends_at": "2026-11-09T16:00:00Z",
+   "price_version": "2026-10-27-gpt-image-launch",
    "pricing": [
     {
+     "list_usd_per_image": "0.004116",
+     "list_usd_per_million_tokens": "21.000000",
      "mode": "text",
      "resolution": "1K",
-     "retail_micros_per_100_million_tokens": 2100000000,
-     "usd_per_image": "0.004116",
+     "retail_micros_per_100_million_tokens": 1050000000,
+     "usd_per_image": "0.002058",
      "usd_per_input_image": "0.000000",
-     "usd_per_million_tokens": "21.000000",
+     "usd_per_million_tokens": "10.500000",
      "variant": "fast"
     },
     {
+     "list_usd_per_image": "0.009219",
+     "list_usd_per_million_tokens": "21.000000",
      "mode": "text",
      "resolution": "1K",
-     "retail_micros_per_100_million_tokens": 2100000000,
-     "usd_per_image": "0.009219",
+     "retail_micros_per_100_million_tokens": 1050000000,
+     "usd_per_image": "0.004610",
      "usd_per_input_image": "0.000000",
-     "usd_per_million_tokens": "21.000000",
+     "usd_per_million_tokens": "10.500000",
      "variant": "default"
     },
     {
+     "list_usd_per_image": "0.036876",
+     "list_usd_per_million_tokens": "21.000000",
      "mode": "text",
      "resolution": "1K",
-     "retail_micros_per_100_million_tokens": 2100000000,
-     "usd_per_image": "0.036876",
+     "retail_micros_per_100_million_tokens": 1050000000,
+     "usd_per_image": "0.018438",
      "usd_per_input_image": "0.000000",
-     "usd_per_million_tokens": "21.000000",
+     "usd_per_million_tokens": "10.500000",
      "variant": "pro"
     }
    ],
@@ -10163,6 +10642,27 @@
   },
   {
    "dialogue": false,
+   "display_name": "Eleven v4 Turbo",
+   "enabled": true,
+   "id": "elevenlabs-v4-turbo",
+   "kind": "speech",
+   "max_characters": 10000,
+   "object": "model",
+   "price_version": "2026-10-11-official",
+   "request_fields": [
+    "text",
+    "voice_id",
+    "output_format",
+    "max_usd",
+    "metadata",
+    "webhook_url"
+   ],
+   "unit": "character",
+   "usd_per_million_units": "28.000000",
+   "voice_surcharges": false
+  },
+  {
+   "dialogue": false,
    "display_name": "Eleven Flash v2.5",
    "enabled": true,
    "id": "elevenlabs-flash-v2.5",
@@ -10201,6 +10701,48 @@
    ],
    "unit": "utf8_byte",
    "usd_per_million_units": "10.500000",
+   "voice_surcharges": false
+  },
+  {
+   "dialogue": false,
+   "display_name": "MiniMax Speech 2.8 HD",
+   "enabled": true,
+   "id": "minimax-speech-2.8-hd",
+   "kind": "speech",
+   "max_characters": 10000,
+   "object": "model",
+   "price_version": "2026-10-11-official",
+   "request_fields": [
+    "text",
+    "voice_id",
+    "output_format",
+    "max_usd",
+    "metadata",
+    "webhook_url"
+   ],
+   "unit": "minimax_character",
+   "usd_per_million_units": "70.000000",
+   "voice_surcharges": false
+  },
+  {
+   "dialogue": false,
+   "display_name": "MiniMax Speech 2.8 Turbo",
+   "enabled": true,
+   "id": "minimax-speech-2.8-turbo",
+   "kind": "speech",
+   "max_characters": 10000,
+   "object": "model",
+   "price_version": "2026-10-11-official",
+   "request_fields": [
+    "text",
+    "voice_id",
+    "output_format",
+    "max_usd",
+    "metadata",
+    "webhook_url"
+   ],
+   "unit": "minimax_character",
+   "usd_per_million_units": "42.000000",
    "voice_surcharges": false
   },
   {
@@ -10298,6 +10840,24 @@
    ],
    "unit": "generation",
    "usd_per_generation": "0.030000"
+  },
+  {
+   "display_name": "Eleven Music 2.5",
+   "enabled": true,
+   "id": "eleven-music-2.5",
+   "kind": "music",
+   "max_duration": 30,
+   "object": "model",
+   "price_version": "2026-10-11-official",
+   "request_fields": [
+    "prompt",
+    "output_format",
+    "max_usd",
+    "webhook_url",
+    "metadata"
+   ],
+   "unit": "generation",
+   "usd_per_generation": "0.052500"
   }
  ],
  "object": "catalog",
@@ -10606,6 +11166,158 @@
     "usd_per_million_units": "56.000000"
    }
   ],
+  "elevenlabs-v4-turbo": [
+   {
+    "id": "voice_daniel",
+    "languages": [
+     "en"
+    ],
+    "name": "Daniel",
+    "peaks": [
+     0.0808,
+     0.1459,
+     0.198,
+     0.1667,
+     0.4845,
+     0.1115,
+     0.1615,
+     0.0921,
+     0.2505,
+     0.1705,
+     0.4064,
+     0.147,
+     0.3615,
+     0.145,
+     0.0956,
+     0.0751,
+     0.031,
+     0.0222,
+     0.0003,
+     0.0001,
+     0.3414,
+     0.2667,
+     0.0509,
+     0.3334,
+     0.5285,
+     0.3376,
+     0.3219,
+     0.3477,
+     0.208,
+     0.0018,
+     0.1892,
+     0.4748,
+     0.1887,
+     0.3793,
+     0.2252,
+     0.312,
+     0.1374,
+     0.2625,
+     0.2786,
+     0.407,
+     0.2554,
+     0.3065,
+     0.2707,
+     0.0811,
+     0.0294,
+     0.0001,
+     0.0464,
+     0.7533,
+     0.3537,
+     0.189,
+     0.0462,
+     0.6243,
+     0.2738,
+     0.1768,
+     0.0887,
+     0.3588,
+     0.1194,
+     0.6806,
+     0.2971,
+     0.2402,
+     0.3738,
+     0.1796,
+     0.1053,
+     0.0186
+    ],
+    "sample_url": "https://platform.cuddler.ai/explore/showcases-2026-10-11/elevenlabs-v4-e409463c51/sample.mp3",
+    "usd_per_million_units": "28.000000"
+   },
+   {
+    "id": "voice_liam",
+    "languages": [
+     "en"
+    ],
+    "name": "Liam",
+    "peaks": [
+     0.4295,
+     0.4318,
+     0.3612,
+     0.358,
+     0.3877,
+     0.2844,
+     0.4581,
+     0.3197,
+     0.4534,
+     0.1981,
+     0.3149,
+     0.2508,
+     0.0152,
+     0.004,
+     0.048,
+     0.3805,
+     0.3186,
+     0.3123,
+     0.2827,
+     0.2725,
+     0.3911,
+     0.2922,
+     0.3223,
+     0.2391,
+     0.2237,
+     0.256,
+     0.1797,
+     0.2551,
+     0.2282,
+     0.2368,
+     0.2328,
+     0.2879,
+     0.0149,
+     0.0075,
+     0.0001,
+     0.0001,
+     0.0001,
+     0.0001,
+     0.0002,
+     0.3767,
+     0.4949,
+     0.3078,
+     0.2512,
+     0.0583,
+     0.0001,
+     0.0007,
+     0.4907,
+     0.4571,
+     0.3472,
+     0.2618,
+     0.0028,
+     0.0001,
+     0.0001,
+     0.5736,
+     0.3591,
+     0.3025,
+     0.3974,
+     0.3904,
+     0.2491,
+     0.281,
+     0.2797,
+     0.1287,
+     0.0552,
+     0.0004
+    ],
+    "sample_url": "https://platform.cuddler.ai/explore/showcases-2026-10-11/elevenlabs-flash-v2.5-b55474b3c7/sample.mp3",
+    "usd_per_million_units": "28.000000"
+   }
+  ],
   "fish-s2.1-pro": [
    {
     "id": "voice_fish_narrator",
@@ -10855,6 +11567,160 @@
      "hi"
     ],
     "name": "Aoede"
+   }
+  ],
+  "minimax-speech-2.8-hd": [
+   {
+    "id": "voice_minimax_narrator",
+    "languages": [
+     "en"
+    ],
+    "name": "Expressive narrator",
+    "peaks": [
+     0.2275,
+     0.9581,
+     0.7548,
+     0.8867,
+     0.6903,
+     0.4141,
+     0.1038,
+     0.005,
+     0.8811,
+     0.7964,
+     0.7404,
+     0.447,
+     0.58,
+     0.4894,
+     0.8815,
+     0.8905,
+     0.8387,
+     0.5954,
+     0.3876,
+     0.3965,
+     0.5133,
+     0.2705,
+     0.0039,
+     0.654,
+     0.9406,
+     0.6031,
+     0.4466,
+     0.6754,
+     0.6992,
+     0.8059,
+     0.484,
+     0.2079,
+     0.5458,
+     0.8023,
+     0.6804,
+     0.6961,
+     0.7841,
+     0.4524,
+     0.7036,
+     0.4458,
+     0.3932,
+     0.0771,
+     0.0277,
+     0.6695,
+     0.9559,
+     0.7339,
+     0.8528,
+     0.7355,
+     0.3067,
+     0.0143,
+     0.205,
+     0.3676,
+     0.8506,
+     0.8798,
+     0.7498,
+     0.5571,
+     0.6076,
+     0.4025,
+     0.0405,
+     0.9047,
+     0.7331,
+     0.4211,
+     0.3558,
+     0.0641
+    ],
+    "sample_url": "https://platform.cuddler.ai/explore/showcases-2026-10-17/minimax-speech-2.8-hd-64f14db042/sample.mp3",
+    "usd_per_million_units": "70.000000"
+   }
+  ],
+  "minimax-speech-2.8-turbo": [
+   {
+    "id": "voice_minimax_narrator",
+    "languages": [
+     "en"
+    ],
+    "name": "Expressive narrator",
+    "peaks": [
+     0.2275,
+     0.9581,
+     0.7548,
+     0.8867,
+     0.6903,
+     0.4141,
+     0.1038,
+     0.005,
+     0.8811,
+     0.7964,
+     0.7404,
+     0.447,
+     0.58,
+     0.4894,
+     0.8815,
+     0.8905,
+     0.8387,
+     0.5954,
+     0.3876,
+     0.3965,
+     0.5133,
+     0.2705,
+     0.0039,
+     0.654,
+     0.9406,
+     0.6031,
+     0.4466,
+     0.6754,
+     0.6992,
+     0.8059,
+     0.484,
+     0.2079,
+     0.5458,
+     0.8023,
+     0.6804,
+     0.6961,
+     0.7841,
+     0.4524,
+     0.7036,
+     0.4458,
+     0.3932,
+     0.0771,
+     0.0277,
+     0.6695,
+     0.9559,
+     0.7339,
+     0.8528,
+     0.7355,
+     0.3067,
+     0.0143,
+     0.205,
+     0.3676,
+     0.8506,
+     0.8798,
+     0.7498,
+     0.5571,
+     0.6076,
+     0.4025,
+     0.0405,
+     0.9047,
+     0.7331,
+     0.4211,
+     0.3558,
+     0.0641
+    ],
+    "sample_url": "https://platform.cuddler.ai/explore/showcases-2026-10-17/minimax-speech-2.8-hd-64f14db042/sample.mp3",
+    "usd_per_million_units": "42.000000"
    }
   ]
  }

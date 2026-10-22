@@ -54,6 +54,50 @@ def main():
         click(page, f"{PANEL} [data-cuddler=save]")
         page.wait_for_function(text_includes(f"{PANEL} [data-cuddler=status]", "BBBB"), timeout=30_000)
         page.wait_for_function(text_includes(f"{PANEL} [data-cuddler=balance]", "12.34"), timeout=30_000)
+        for node_id in ("CuddlerVideo", "CuddlerImage", "CuddlerSpeech", "CuddlerMusic"):
+            page.wait_for_function("(id) => window.LiteGraph?.registered_node_types?.[id]", arg=node_id, timeout=30_000)
+            page.evaluate("""(id) => {
+              const node = window.LiteGraph.createNode(id);
+              window.app.graph.add(node);
+              window.__cuddlerCheckNode = node;
+            }""", node_id)
+            if node_id == "CuddlerSpeech":
+                page.wait_for_function("() => window.__cuddlerCheckNode.widgets.some(w => w.name === 'model.text' || w.name === 'text')")
+                page.evaluate("() => { window.__cuddlerCheckNode.widgets.find(w => w.name === 'model.text' || w.name === 'text').value = 'Hello world.'; }")
+            page.wait_for_function("() => window.__cuddlerCheckNode.widgets.some((widget) => "
+                                   "typeof widget.value === 'string' && widget.value.includes('$0.66'))",
+                                   timeout=30_000)
+            page.wait_for_function("() => window.__cuddlerCheckNode.widgets.some((widget) => "
+                                   "widget.disabled === true && typeof widget.label === 'string' && "
+                                   "widget.label.includes('$0.66'))", timeout=30_000)
+            workflow = page.evaluate("() => window.__cuddlerCheckNode.serialize()")
+            if KEY in json.dumps(workflow):
+                raise AssertionError("the API key reached a workflow")
+            if node_id == "CuddlerVideo":
+                page.evaluate("""() => {
+                  const node = window.__cuddlerCheckNode;
+                  const model = node.widgets.find(w => w.name === 'model');
+                  const choice = model.options.values.find(v => v.includes('(seedance-2.5) / Reference to video /'));
+                  if (!choice) throw new Error('Cuddler reference selector missing');
+                  model.value = choice;
+                  model.callback(choice);
+                }""")
+                page.wait_for_function("() => window.__cuddlerCheckNode.inputs.some(i => i.name === 'model.reference_images.image0')")
+                page.evaluate("""() => {
+                  const source = window.LiteGraph.createNode('CuddlerHostMediaFixture');
+                  window.app.graph.add(source);
+                  window.__cuddlerCheckSource = source;
+                  const node = window.__cuddlerCheckNode;
+                  source.connect(0, node, node.inputs.findIndex(i => i.name === 'model.reference_images.image0'));
+                  source.connect(2, node, node.inputs.findIndex(i => i.name === 'model.reference_videos.video0'));
+                }""")
+                page.wait_for_function("() => window.__cuddlerCheckNode.inputs.some(i => i.name === 'model.reference_images.image1')")
+                page.wait_for_function("() => window.__cuddlerCheckNode.widgets.some(w => typeof w.value === 'string' && w.value.includes('Starting price'))")
+                workflow = page.evaluate("() => window.__cuddlerCheckNode.serialize()")
+                if KEY in json.dumps(workflow):
+                    raise AssertionError('the API key reached an advanced workflow')
+                page.evaluate("() => window.app.graph.remove(window.__cuddlerCheckSource)")
+            page.evaluate("() => window.app.graph.remove(window.__cuddlerCheckNode)")
         settings = page.evaluate("() => fetch('/api/settings').then((response) => response.json())")
         click(page, f"{PANEL} [data-cuddler=remove]")
         page.wait_for_function(f"() => !({text_includes(f'{PANEL} [data-cuddler=status]', 'BBBB')})()",
@@ -64,7 +108,7 @@ def main():
     if leaked or own_errors:
         print(f"FAIL key in ComfyUI settings: {leaked}; page errors: {own_errors}")
         return 1
-    print("PASS the settings panel saved and removed a key; the key never reached ComfyUI's settings")
+    print("PASS settings, four price labels, reference mode and Autogrow work; no key in settings or workflow")
     return 0
 
 

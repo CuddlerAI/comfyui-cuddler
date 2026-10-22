@@ -1,24 +1,41 @@
 name: publish
 
-# The Comfy Registry's own flow: a pyproject.toml change on main publishes it.
-# Versions below 1.0.0 never publish, and nothing publishes until the
-# REGISTRY_ACCESS_TOKEN secret exists.
+# Publishing requires explicit acceptance for the exact main commit.
+# CI fixtures prove host compatibility; they do not prove real generation or settlement.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - pyproject.toml
+    inputs:
+      accepted_sha:
+        description: Full main commit that passed real generation, replay and settlement acceptance
+        required: true
+        type: string
+      acceptance_reference:
+        description: Private acceptance receipt reference (never include keys, prompts or media URLs)
+        required: true
+        type: string
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   registry:
-    if: github.repository == 'CuddlerAI/comfyui-cuddler'
+    if: github.repository == 'CuddlerAI/comfyui-cuddler' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Require accepted commit and successful host and unit workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACCEPTED_SHA: ${{ inputs.accepted_sha }}
+          ACCEPTANCE_REFERENCE: ${{ inputs.acceptance_reference }}
+        run: |
+          test "$ACCEPTED_SHA" = "$GITHUB_SHA"
+          test -n "$ACCEPTANCE_REFERENCE"
+          for workflow in test.yml host.yml; do
+            conclusion=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$workflow/runs?head_sha=$GITHUB_SHA&event=push&per_page=1" --jq '.workflow_runs[0].conclusion')
+            test "$conclusion" = success || { echo "$workflow has not passed for this main commit"; exit 1; }
+          done
       - name: Publish only from 1.0.0 on
         id: gate
         run: |
