@@ -61,6 +61,7 @@ Cuddler Video、Image、Speech、Music 四个节点根据目录展示可选模�
 
 - key 保存在 `ComfyUI/user/__cuddler/credentials.json`。ComfyUI 不会通过网页接口提供 `__` 开头文件夹里的文件；在 macOS 和 Linux 上，这个文件只有你的账户能读。
 - key 不会写进工作流、图片或视频的元数据、ComfyUI 的设置或日志。
+- 平台 API 请求在发送 key 或请求数据前校验目标为 `https://api.cuddler.ai`，系统代理仍可使用。签名媒体上传保留原存储请求头，但拒绝认证、Cookie 和代理认证请求头；下载不会附带平台 key。
 - `ComfyUI/user/__cuddler/state.sqlite3` 保存运行指纹和文件哈希、幂等键、任务和上传 ID、花费上限及不透明的凭据绑定，不保存提示词和素材。结果未知的提交保留原幂等键及重放所需信息，未决记录保留至结果查明；终态任务在 8 天后清理，已就绪上传在 29 天后清理。
 - 更换 key 后，只有新 key 成功查询已知任务，才会恢复该任务。尚未拿到任务 ID 的提交需要原 key；缺少绑定、无法读取旧任务或数据库损坏时，会停止运行，不自动新建收费任务。请保留原记录，在平台控制台核对或联系客服；**不要通过删除数据库来重试**。
 - 请将 `state.initialized` 标记与任务库一起保留，避免丢失的任务库被误当成全新安装。
@@ -80,6 +81,7 @@ npm test
 
 实际验收按[视频验收操作步骤](docs/acceptance/video-paid.md)执行。预检只读取目录、余额和估价；
 真实生成与结算需要先登记预算批准并另留证据，宿主 CI 不能替代该验收。
+网络边界补丁还需核对[兼容回归清单](docs/acceptance/network-boundaries.md)。
 
 ## 许可证
 

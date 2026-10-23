@@ -78,6 +78,22 @@ class JobRunnerTest(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(self.state.job(self.runner.fingerprint(spec)))
         self.assertEqual(self.transport.calls("POST", "/videos"), [])
 
+    async def test_an_unsafe_origin_stops_before_reserving_and_can_be_corrected(self):
+        spec = self.spec()
+        self.runner._client.origin = "https://other.example"
+        with self.assertRaises(CuddlerError) as caught:
+            await self.run_job(spec)
+        self.assertEqual(caught.exception.code, "unsafe_url")
+        self.assertIsNone(self.state.job(self.runner.fingerprint(spec)))
+        self.assertEqual(self.transport.requests, [])
+
+        self.runner._client.origin = "https://api.cuddler.ai"
+        self.script_estimate()
+        self.transport.add("POST", "/videos", status=202, body=fakes.video_job("queued"))
+        self.transport.add("GET", JOB_URL, body=fakes.video_job("succeeded"))
+        self.assertEqual((await self.run_job(spec))["status"], "succeeded")
+        self.assertEqual(len(self.transport.calls("POST", "/videos")), 1)
+
     async def test_a_job_made_while_its_record_could_not_be_written_is_collected_next_time(self):
         self.script_estimate()
         self.transport.add("POST", "/videos", status=202, body=fakes.video_job("queued"))

@@ -1,6 +1,7 @@
 import io
 import json
 import unittest
+from unittest import mock
 
 from cuddler_plugin.cuddler.client import PlatformClient
 from cuddler_plugin.cuddler.errors import CuddlerError
@@ -38,6 +39,67 @@ class ClientTest(unittest.TestCase):
             PlatformClient(self.transport).balance()
         self.assertEqual(caught.exception.code, "key_missing")
         self.assertEqual(self.transport.requests, [])
+
+    def test_api_calls_refuse_untrusted_origins_before_sending_anything(self):
+        origins = (
+            "https://other.example", "https://api.cuddler.ai.other.example",
+            "https://other-api.cuddler.ai", "https://acct.r2.cloudflarestorage.com",
+            "http://api.cuddler.ai", "https://api.cuddler.ai:8443",
+            "https://api.cuddler.ai@other.example", "https://user@api.cuddler.ai",
+            "https://api.cuddler.ai/base", "https://api.cuddler.ai/../",
+            "https://api.cuddler.ai?redirect=other", "https://api.cuddler.ai#fragment",
+            "https://api.cuddler.ai?", "https://api.cuddler.ai#",
+            "https://api.cuddler.ai\t.other.example", "https://api.cuddler.ai.",
+            "https://127.0.0.1", "https://localhost", "file:///tmp/platform",
+        )
+        for origin in origins:
+            client = PlatformClient(self.transport, fakes.LIVE_KEY, origin=origin)
+            for operation in (client.catalog, client.balance,
+                              lambda: client.estimate("image", {"model": "seedream-5"})):
+                with self.subTest(origin=origin, operation=operation):
+                    with self.assertRaises(CuddlerError) as caught:
+                        operation()
+                    self.assertEqual(caught.exception.code, "unsafe_url")
+                    self.assertEqual(self.transport.requests, [])
+                    self.assertNotIn(fakes.LIVE_KEY, str(caught.exception))
+
+    def test_changing_an_origin_cannot_submit_a_job_elsewhere(self):
+        self.client.origin = "https://other.example"
+        with self.assertRaises(CuddlerError) as caught:
+            self.client.create("video", {"model": "seedance-2.5"}, "job-0123456789abcdef")
+        self.assertEqual(caught.exception.code, "unsafe_url")
+        self.assertEqual(self.transport.requests, [])
+
+    def test_valid_api_origins_keep_the_request_and_recovery_identity(self):
+        for origin in ("https://api.cuddler.ai", "https://api.cuddler.ai/",
+                       "https://api.cuddler.ai:443", "https://API.CUDDLER.AI"):
+            with self.subTest(origin=origin):
+                client = PlatformClient(self.transport, fakes.LIVE_KEY, origin=origin)
+                identity = client.recovery_identity()
+                url = origin.rstrip("/") + "/v1/balance"
+                self.transport.add("GET", url, body=fakes.balance())
+                self.assertEqual(client.balance()["available_usd"], "12.340000")
+                request = self.transport.requests[-1]
+                self.assertEqual((request.method, request.url, request.body), ("GET", url, None))
+                self.assertEqual(request.headers, {"Accept": "application/json",
+                                                  "Authorization": "Bearer " + fakes.LIVE_KEY})
+                self.assertEqual(client.recovery_identity(), identity)
+
+    def test_a_call_sends_to_the_origin_it_checked_even_if_the_client_changes(self):
+        encode = json.dumps
+
+        def change_origin(*args, **kwargs):
+            self.client.origin = "https://other.example"
+            return encode(*args, **kwargs)
+
+        self.transport.add("POST", "/videos", status=202, body=fakes.video_job())
+        with mock.patch("cuddler_plugin.cuddler.client.json.dumps", side_effect=change_origin):
+            self.client.create("video", {"model": "seedance-2.5"}, "job-0123456789abcdef")
+        self.assertEqual(self.transport.requests[-1].url, fakes.API + "/videos")
+        with self.assertRaises(CuddlerError) as caught:
+            self.client.balance()
+        self.assertEqual(caught.exception.code, "unsafe_url")
+        self.assertEqual(len(self.transport.requests), 1)
 
     def test_recovery_identity_binds_the_credential_and_origin_without_a_request(self):
         identity = self.client.recovery_identity()
@@ -281,6 +343,47 @@ class ClientTest(unittest.TestCase):
             names = {name.lower() for name in request.headers}
             self.assertFalse(names & {"authorization", "cookie", "proxy-authorization"})
             self.assertNotIn(fakes.LIVE_KEY, request.url)
+
+    def test_media_uploads_reject_credentials_and_malformed_headers_before_sending(self):
+        headers = (
+            {"Authorization": "Bearer " + fakes.LIVE_KEY},
+            {"aUtHoRiZaTiOn": "Bearer " + fakes.LIVE_KEY},
+            {"Cookie": "session=private"}, {"PROXY-AUTHORIZATION": "Basic private"},
+            {"Authorization ": "Bearer " + fakes.LIVE_KEY},
+            {"X-Header\r\nAuthorization": "private"}, {"": "empty name"},
+            {"X-Header": "value\r\nAuthorization: private"},
+            {"X-Header": "value\nCookie: private"},
+        )
+        self.transport.add("PUT", fakes.PUT_URL, status=200, body=b"")
+        for supplied in headers:
+            with self.subTest(names=list(supplied)):
+                with self.assertRaises(CuddlerError) as caught:
+                    self.client.put_media(fakes.PUT_URL, supplied, b"data")
+                self.assertEqual(caught.exception.code, "invalid_response")
+                self.assertEqual(self.transport.requests, [])
+                self.assertNotIn(fakes.LIVE_KEY, str(caught.exception))
+
+    def test_media_uploads_preserve_legitimate_signed_headers_and_url(self):
+        headers = {"content-type": "image/png", "content-length": "4",
+                   "X-Amz-Checksum-Sha256": "checksum", "x-amz-meta-origin": "comfyui"}
+        expected = dict(headers)
+        self.transport.add("PUT", fakes.PUT_URL, status=200, body=b"")
+        self.client.put_media(fakes.PUT_URL, headers, b"data")
+        request = self.transport.requests[-1]
+        self.assertEqual((request.method, request.url, request.headers, request.body),
+                         ("PUT", fakes.PUT_URL, expected, b"data"))
+        self.assertEqual(headers, expected)
+
+    def test_media_uploads_send_the_header_snapshot_that_was_checked(self):
+        class ChangingHeaders(dict):
+            def items(self):
+                original = list(super().items())
+                self["Authorization"] = "Bearer " + fakes.LIVE_KEY
+                return original
+
+        self.transport.add("PUT", fakes.PUT_URL, status=200, body=b"")
+        self.client.put_media(fakes.PUT_URL, ChangingHeaders({"Content-Type": "image/png"}), b"data")
+        self.assertEqual(self.transport.requests[-1].headers, {"Content-Type": "image/png"})
 
     def test_the_key_never_shows_up_in_reprs_or_errors(self):
         self.transport.add("GET", "/balance", status=401, body=fakes.error("unauthorized", 401))
