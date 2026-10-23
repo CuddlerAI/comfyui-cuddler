@@ -89,6 +89,9 @@ variable (comma separated; `.example.com` covers every name under it) and restar
 - The key is stored in `ComfyUI/user/__cuddler/credentials.json`. ComfyUI never serves files
   from `__` folders over HTTP, and on macOS and Linux the file is readable only by your account.
 - The key is never written to workflows, to image or video metadata, to ComfyUI's settings or to logs.
+- Platform API calls require `https://api.cuddler.ai` before sending keys or request data. System
+  proxies still work. Signed media uploads preserve their storage headers but reject authorization,
+  cookie and proxy-authorization headers; downloads never receive the Platform key.
 - `ComfyUI/user/__cuddler/state.sqlite3` keeps run fingerprints and file hashes, idempotency keys,
   job and upload ids, spending limits and opaque credential bindings. It holds no prompts or media.
   Unknown submissions retain their original key and request details for recovery. Unresolved records
@@ -122,6 +125,7 @@ Before a release, refresh the bundled model list with `python scripts/export_cat
 For operator acceptance, follow [the video acceptance runbook](docs/acceptance/video-paid.md).
 Its preflight reads the catalog, balance and estimate only. Real generation and settlement require
 the recorded budget approval and separate evidence; host CI does not replace that acceptance.
+For the network-boundary patch, also use the [compatibility regression checklist](docs/acceptance/network-boundaries.md).
 
 ## License
 

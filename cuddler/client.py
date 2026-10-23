@@ -2,6 +2,7 @@
 import hashlib
 import json
 import re
+from urllib.parse import urlsplit
 
 from .errors import CuddlerError
 from .transport import Request, checked_https_url
@@ -26,6 +27,8 @@ _MONEY = re.compile(r"-?(?:0|[1-9][0-9]{0,8})\.[0-9]{6}")  # exactly what money.
 _RETRY_AFTER = re.compile(r"[0-9]{1,9}")  # plain seconds: int() raises on other digits and on huge strings
 _IDEMPOTENCY_KEY = re.compile(r"[A-Za-z0-9._:-]{8,128}")
 _REQUEST_ID = re.compile(r"[A-Za-z0-9._:-]{1,128}")
+_HEADER_NAME = re.compile(r"[!#$%&'*+.^_`|~0-9A-Za-z-]+")
+_MEDIA_CREDENTIAL_HEADERS = frozenset({"authorization", "cookie", "proxy-authorization"})
 MAX_JSON = 4 * 1024 * 1024
 
 
@@ -113,6 +116,12 @@ class PlatformClient:
         return hashlib.sha256(value).hexdigest()
 
     def _call(self, method, path, body=None, *, idempotency_key=None, auth=True, timeout=30.0):
+        # The registered runtime uses ORIGIN. Enforce that boundary again before
+        # sending a key or prompt, even if an internal caller changes the client.
+        origin = checked_https_url(self.origin)
+        parts = urlsplit(origin)
+        if parts.hostname != urlsplit(ORIGIN).hostname or parts.path or "?" in origin or "#" in origin:
+            raise CuddlerError("unsafe_url")
         headers = {"Accept": "application/json"}
         if auth:
             if not self._key:
@@ -128,7 +137,7 @@ class PlatformClient:
         if idempotency_key is not None:
             headers["Idempotency-Key"] = _idempotency_key(idempotency_key)
         response = self._transport.send(
-            Request(method, self.origin + "/v1" + path, headers, data, MAX_JSON, timeout))
+            Request(method, origin + "/v1" + path, headers, data, MAX_JSON, timeout))
         try:
             value = json.loads(response.body.decode("utf-8")) if response.body else None
         except (UnicodeDecodeError, ValueError, RecursionError):
@@ -204,10 +213,18 @@ class PlatformClient:
 
     def put_media(self, url, headers, data):
         checked_https_url(url, media=True)
-        if not isinstance(headers, dict) or not all(
-                isinstance(k, str) and isinstance(v, str) for k, v in headers.items()):
+        # Preserve the exact signed storage headers, but never forward session
+        # credentials or allow a malformed header to introduce another one.
+        if not isinstance(headers, dict):
             raise CuddlerError("invalid_response")
-        response = self._transport.send(Request("PUT", url, dict(headers), data, 64 * 1024, 300.0))
+        headers = dict(headers)
+        if not all(
+                isinstance(k, str) and _HEADER_NAME.fullmatch(k)
+                and k.lower() not in _MEDIA_CREDENTIAL_HEADERS
+                and isinstance(v, str) and "\r" not in v and "\n" not in v
+                for k, v in headers.items()):
+            raise CuddlerError("invalid_response")
+        response = self._transport.send(Request("PUT", url, headers, data, 64 * 1024, 300.0))
         if not 200 <= response.status < 300:
             raise CuddlerError("media_transfer_failed", status=response.status)
 
